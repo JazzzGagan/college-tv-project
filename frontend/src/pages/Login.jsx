@@ -1,7 +1,8 @@
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useState } from "react";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -13,36 +14,36 @@ export default function Login() {
     e.preventDefault();
     setError("");
 
-    // try {
-    //   const res = await axios.post("/api/auth/admin-login", {
-    //     username,
-    //     password,
-    //   });
+    try {
+      const res = await axios.post("http://localhost:3000/admin/login", {
+        username,
+        password,
+      });
 
-    //   toast.success(res.data.message);
+      localStorage.setItem("adminToken", res.data.token);
+      toast.success(res.data.message);
+      setTimeout(() => {
+        navigate("/admin");
+      }, 1000);
+    } catch (err) {
+      setError(err.response?.data?.message || "Login failed");
+    }
+    // const validUsername = "123";
+    // const validPassword = "123";
 
-    //   localStorage.setItem("adminAuth", JSON.stringify(res.data.admin));
+    // if (username === validUsername && password === validPassword) {
+    //   toast.success("Login successful!");
+
+    //   // store admin authentication (dummy)
+    //   localStorage.setItem(
+    //     "adminAuth",
+    //     JSON.stringify({ username: validUsername })
+    //   );
 
     //   navigate("/admin");
-    // } catch (err) {
-    //   setError(err.response?.data?.message || "Login failed");
+    // } else {
+    //   setError("Invalid username or password");
     // }
-    const validUsername = "123";
-    const validPassword = "123";
-
-    if (username === validUsername && password === validPassword) {
-      toast.success("Login successful!");
-
-      // store admin authentication (dummy)
-      localStorage.setItem(
-        "adminAuth",
-        JSON.stringify({ username: validUsername })
-      );
-
-      navigate("/admin");
-    } else {
-      setError("Invalid username or password");
-    }
   };
 
   return (
