@@ -28,14 +28,27 @@ const storage = multer.diskStorage({
   },
 });
 const upload = multer({ storage: storage });
-router.post("/upload", upload.single("file"), (req, res) => {
-  console.log("test", req.body);
+router.post(
+  "/upload",
+  upload.fields([
+    { name: "leftImage", maxCount: 1 },
+    { name: "rightImage", maxCount: 1 },
+    { name: "video", maxCount: 1 },
+  ]),
+  (req, res) => {
+    const leftImage = req.files.leftImage[0];
+    const rightImage = req.files.rightImage[0];
+    const video = req.files.video[0];
 
-  if (!req.file) {
-    return res.status(400).json({ message: "no file uploaded!" });
+    if (!req.file) {
+      return res.status(400).json({ message: "no file uploaded!" });
+    }
+    res.json({
+      leftImageUrl: `http://localhost:3000/uploads/${leftImage.filename}`,
+      rightImageUrl: `http://localhost:3000/uploads/${rightImage.filename}`,
+      videoUrl: `http://localhost:3000/uploads/${video.filename}`,
+      message: "Files uploaded successfully",
+    });
   }
-  res
-    .status(200)
-    .json({ message: `${req.file.filename} uploaded sucessfully.` });
-});
+);
 export default router;
