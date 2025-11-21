@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import AdminPanel from "./pages/AdminPanel";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Login from "./pages/Login";
+import Home from "./pages/Home";
 
 const queryClient = new QueryClient();
 
@@ -21,6 +22,7 @@ function App() {
                 </ProtectedRoute>
               }
             />
+            <Route path="/" element={ <Home />} />
           </Routes>
         </BrowserRouter>
       </QueryClientProvider>
