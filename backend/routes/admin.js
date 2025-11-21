@@ -3,11 +3,14 @@ import { Router } from "express";
 import auth from "../middleware/auth.js";
 import multer from "multer";
 import path from "path";
+import { log } from "console";
 
 const router = express.Router();
 
 router.post("/login", (req, res) => {
   const { username, password } = req.body;
+  console.log(req.body);
+
   if (username === "admin" && password === "pass123") {
     res.json({ token: "1234", message: "Login sucessfully" });
   } else {
