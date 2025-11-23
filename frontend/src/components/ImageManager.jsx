@@ -33,6 +33,15 @@ const ImageManager = () => {
 
   //save upload images to backend
   const handleSave = async () => {
+    const newImages = Object.values(images).filter(
+      (img) => img && typeof img !== "string"
+    );
+
+    if (newImages.length === 0) {
+      alert("No new images selected.");
+      return;
+    }
+
     try {
       for (const [key, file] of Object.entries(images)) {
         if (!file || typeof file === "string") continue;
@@ -109,19 +118,17 @@ const ImageManager = () => {
   };
 
   return (
-    <section className="tab-content relative p-4">
-      <div className="absolute top-4 right-4 z-10">
+    <section className="tab-content">
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-2xl font-bold text-orange-600">Image Management</h2>
+
         <button
           onClick={handleSave}
-          className="bg-blue-600 text-white px-4 py-1.5 rounded text-sm"
+          className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"
         >
           Save Changes
         </button>
       </div>
-
-      <h2 className="text-2xl font-medium mb-3 text-orange-600">
-        Image Management
-      </h2>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {renderImageBox("Left Side Image", images["Left Side Image"])}

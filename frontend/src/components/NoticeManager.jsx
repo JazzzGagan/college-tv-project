@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 
 const NoticeManager = () => {
-  const [notices, setNotices] = useState([]); // all notices (from backend + new)
-  const [newNoticeText, setNewNoticeText] = useState(""); // controlled input for new notice
+  const [notices, setNotices] = useState([]);
+  const [newNoticeText, setNewNoticeText] = useState("");
 
   // Fetch existing notices from backend
   useEffect(() => {
@@ -18,9 +18,12 @@ const NoticeManager = () => {
     fetchNotices();
   }, []);
 
-  // Add a new notice locally (not sent to backend yet)
+  // Add a new notice
   const addNotice = () => {
-    if (!newNoticeText.trim()) return; // prevent empty
+    if (!newNoticeText.trim()) {
+      alert("Notice cannot be empty!");
+      return;
+    }
     setNotices((prev) => [
       ...prev,
       { id: `temp-${Date.now()}`, text: newNoticeText },
@@ -60,17 +63,21 @@ const NoticeManager = () => {
   };
 
   return (
-    <section className="tab-content p-4 sm:p-6 md:p-8">
+    <section className="tab-content">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-medium text-orange-600">Notice Manager</h2>
+        <h2 className="text-2xl font-bold text-orange-600">
+          Notice Management
+        </h2>
+
         <button
           onClick={saveChanges}
-          className="bg-blue-600 text-white px-4 py-1.5 rounded text-sm hover:bg-blue-700"
+          className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"
         >
           Save Changes
         </button>
       </div>
 
+      {/* Notice list */}
       <div className="space-y-2">
         {notices.map((notice, i) => (
           <div
@@ -78,16 +85,18 @@ const NoticeManager = () => {
             className="flex justify-between items-center bg-orange-100 border-l-4 border-orange-500 p-3 rounded shadow"
           >
             <span className="text-gray-700 font-medium">{notice.text}</span>
-            <div className="flex gap-2">
+
+            <div className="flex gap-3">
               <button
                 onClick={() => editNotice(i)}
-                className="text-blue-600 font-semibold text-sm hover:opacity-80"
+                className="text-blue-600 font-semibold text-sm hover:underline"
               >
                 Edit
               </button>
+
               <button
                 onClick={() => deleteNotice(i)}
-                className="text-red-600 font-semibold text-sm hover:opacity-80"
+                className="text-red-600 font-semibold text-sm hover:underline"
               >
                 Delete
               </button>
@@ -96,7 +105,7 @@ const NoticeManager = () => {
         ))}
       </div>
 
-      {/* Add new notice locally */}
+      {/* Add new notice input */}
       <div className="mt-4 flex gap-2">
         <input
           type="text"
@@ -105,6 +114,7 @@ const NoticeManager = () => {
           onChange={(e) => setNewNoticeText(e.target.value)}
           className="flex-1 border border-orange-300 rounded px-3 py-2 text-sm"
         />
+
         <button
           onClick={addNotice}
           className="bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600 text-sm font-semibold"
