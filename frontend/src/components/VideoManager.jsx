@@ -34,20 +34,27 @@ const VideoManager = () => {
 
   // Save new videos to backend
   const handleSave = async () => {
-    try {
-      for (const videoObj of videos) {
-        if (!videoObj.file) continue;
+    const newFiles = videos.filter((v) => v.file !== null);
 
+    if (newFiles.length === 0) {
+      alert("No new videos selected.");
+      return;
+    }
+
+    try {
+      for (const videoObj of newFiles) {
         const formData = new FormData();
         formData.append("file", videoObj.file);
         formData.append("title", "Main Video");
-        const res = await fetch("http://localhost:5000/uploads", {
+
+        const res = await fetch("http://localhost:3000/uploads", {
           method: "POST",
           body: formData,
         });
 
         const data = await res.json();
         console.log("Uploaded:", data);
+
         videoObj.preview = data.url;
         videoObj.file = null;
       }
@@ -63,7 +70,7 @@ const VideoManager = () => {
   return (
     <section className="tab-content">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-bold text-orange-600">Video Manager</h2>
+        <h2 className="text-2xl font-bold text-orange-600">Video Management</h2>
 
         <button
           onClick={handleSave}

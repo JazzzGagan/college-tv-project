@@ -10,34 +10,29 @@ const queryClient = new QueryClient();
 
 function App() {
   return (
-    <>
-      <QueryClientProvider client={queryClient}>
-        <BrowserRouter>
-          <ToastContainer
-            position="top-right"
-            autoClose={1000}
-            hideProgressBar={false}
-            newestOnTop={false}
-            closeOnClick
-            pauseOnHover
-            draggable
-          />
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route path="/" element={<Home />} />
-            <Route
-              path="/admin"
-              element={
-                <ProtectedRoute>
-                  <AdminPanel />
-                </ProtectedRoute>
-              }
-            />
-          </Routes>
-        </BrowserRouter>
-      </QueryClientProvider>
-    </>
+    <QueryClientProvider client={queryClient}>
+      <ToastContainer
+        position="top-right"
+        autoClose={1000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        pauseOnHover
+        draggable
+      />
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/" element={<Home />} />
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute>
+              <AdminPanel />
+            </ProtectedRoute>
+          }
+        />
+      </Routes>
+    </QueryClientProvider>
   );
 }
-
 export default App;
