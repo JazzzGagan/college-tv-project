@@ -9,6 +9,7 @@ const queryClient = new QueryClient();
 function App() {
   return (
     <>
+<<<<<<< Updated upstream
       <QueryClientProvider client={queryClient}>
         <BrowserRouter>
           <Routes>
@@ -24,6 +25,29 @@ function App() {
           </Routes>
         </BrowserRouter>
       </QueryClientProvider>
+=======
+      <ToastContainer
+        position="top-right"
+        autoClose={1000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        pauseOnHover
+        draggable
+      />
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/" element={<Home />} />
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute>
+              <AdminPanel />
+            </ProtectedRoute>
+          }
+        />
+      </Routes>
+>>>>>>> Stashed changes
     </>
   );
 }
