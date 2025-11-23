@@ -4,6 +4,7 @@ import AdminPanel from "./pages/AdminPanel";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Login from "./pages/Login";
 import { ToastContainer } from "react-toastify";
+import Home from "./pages/Home";
 
 const queryClient = new QueryClient();
 
