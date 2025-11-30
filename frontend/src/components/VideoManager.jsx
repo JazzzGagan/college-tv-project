@@ -1,83 +1,73 @@
+import axios from "axios";
 import React, { useState, useEffect } from "react";
 
 const VideoManager = () => {
-  const [videos, setVideos] = useState([]);
+  const [selectedVideo, setSelectedVideo] = useState(null);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [previewUrl, setPreviewUrl] = useState("");
 
-  useEffect(() => {
-    const fetchVideos = async () => {
-      try {
-        const res = await fetch("http://localhost:5000/uploads/videos");
-        const data = await res.json();
-        const savedVideos = data.map((v) => ({ file: null, preview: v.url }));
-        setVideos(savedVideos);
-      } catch (err) {
-        console.error("Failed to load videos", err);
-      }
-    };
-    fetchVideos();
-  }, []);
+  console.log("test", selectedVideo);
 
-  // Handle new file uploads
-  const handleUpload = (e) => {
-    const uploadedFiles = Array.from(e.target.files);
-    const newVideos = uploadedFiles.map((file) => ({
-      file,
-      preview: URL.createObjectURL(file),
-    }));
-    setVideos((prev) => [...prev, ...newVideos]);
-  };
-
-  // Delete video from state
-  const handleDelete = (index) => {
-    setVideos(videos.filter((_, i) => i !== index));
-  };
-
-  // Save new videos to backend
-  const handleSave = async () => {
-    const newFiles = videos.filter((v) => v.file !== null);
-
-    if (newFiles.length === 0) {
-      alert("No new videos selected.");
+  const handleUpload = async () => {
+    if (!selectedVideo) {
+      alert("No video selected");
       return;
     }
 
+    const formData = new FormData();
+    formData.append("video", selectedVideo);
+
     try {
-      for (const videoObj of newFiles) {
-        const formData = new FormData();
-        formData.append("file", videoObj.file);
-        formData.append("title", "Main Video");
+      const response = await axios.post(
+        "http://localhost:3000/api/upload-video",
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+          onUploadProgress: (progressEvent) => {
+            const percent = Math.round(
+              (progressEvent.loaded * 100) / progressEvent.total
+            );
+            setUploadProgress(percent);
+          },
+        }
+      );
+      console.log(response.data);
 
-        const res = await fetch("http://localhost:3000/uploads", {
-          method: "POST",
-          body: formData,
-        });
+      setPreviewUrl(response.data.videoUrl);
 
-        const data = await res.json();
-        console.log("Uploaded:", data);
-
-        videoObj.preview = data.url;
-        videoObj.file = null;
-      }
-
-      setVideos([...videos]);
-      alert("Videos uploaded successfully!");
+      setUploadProgress(0);
+      alert("Video uploaded successfully!");
     } catch (err) {
-      console.error("Upload error:", err);
-      alert("Failed to upload videos.");
+      console.error(err);
+      alert("Upload failed!");
+      setUploadProgress(0);
     }
   };
-
   return (
     <section className="tab-content">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-bold text-orange-600">Video Management</h2>
+        <h2 className="text-2xl font-bold text-red-600">Video Management</h2>
 
         <button
-          onClick={handleSave}
+          onClick={handleUpload}
           className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"
         >
           Save Changes
         </button>
+        {uploadProgress > 0 && (
+          <div
+            style={{ marginTop: "10px", width: "300px", background: "#eee" }}
+          >
+            <div
+              style={{
+                width: `${uploadProgress}%`,
+                height: "10px",
+                background: "green",
+              }}
+            />
+            <span>{uploadProgress}%</span>
+          </div>
+        )}
       </div>
 
       <div className="mb-4">
@@ -87,7 +77,7 @@ const VideoManager = () => {
           multiple
           id="videoUpload"
           className="hidden"
-          onChange={handleUpload}
+          onChange={(e) => setSelectedVideo(e.target.files[0])}
         />
 
         <label
@@ -97,27 +87,24 @@ const VideoManager = () => {
           Choose Videos
         </label>
       </div>
-
-      <div className="flex flex-col gap-4">
-        {videos.map((vid, index) => (
-          <div
-            key={index}
-            className="flex flex-col gap-3 bg-gray-100 p-3 rounded shadow"
-          >
+      {selectedVideo && (
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-3 bg-gray-100 p-3 rounded shadow">
             <video
-              src={vid.preview}
+              src={URL.createObjectURL(selectedVideo)}
               controls
+            
               className="w-[950px] h-[450px] border rounded"
             />
             <button
-              onClick={() => handleDelete(index)}
+              onClick={() => setSelectedVideo(null)}
               className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
             >
               Delete
             </button>
           </div>
-        ))}
-      </div>
+        </div>
+      )}
     </section>
   );
 };

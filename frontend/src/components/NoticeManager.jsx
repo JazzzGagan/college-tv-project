@@ -5,18 +5,18 @@ const NoticeManager = () => {
   const [newNoticeText, setNewNoticeText] = useState("");
 
   // Fetch existing notices from backend
-  useEffect(() => {
-    const fetchNotices = async () => {
-      try {
-        const res = await fetch("http://localhost:5000/notices");
-        const data = await res.json();
-        setNotices(data || []);
-      } catch (err) {
-        console.error("Failed to fetch notices:", err);
-      }
-    };
-    fetchNotices();
-  }, []);
+  // useEffect(() => {
+  //   const fetchNotices = async () => {
+  //     try {
+  //       const res = await fetch("http://localhost:5000/notices");
+  //       const data = await res.json();
+  //       setNotices(data || []);
+  //     } catch (err) {
+  //       console.error("Failed to fetch notices:", err);
+  //     }
+  //   };
+  //   fetchNotices();
+  // }, []);
 
   // Add a new notice
   const addNotice = () => {
@@ -50,11 +50,15 @@ const NoticeManager = () => {
   // Save all notices to backend
   const saveChanges = async () => {
     try {
-      await fetch("http://localhost:5000/notices/save-all", {
+      const res = await fetch("http://localhost:3000/api/update-notices", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(notices),
       });
+      const data = await res.json()
+      console.log(data);
+      
+
       alert("All notices saved!");
     } catch (err) {
       console.error("Failed to save notices:", err);
@@ -65,7 +69,7 @@ const NoticeManager = () => {
   return (
     <section className="tab-content">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-bold text-orange-600">
+        <h2 className="text-2xl font-bold text-red-600">
           Notice Management
         </h2>
 
@@ -82,7 +86,7 @@ const NoticeManager = () => {
         {notices.map((notice, i) => (
           <div
             key={notice.id}
-            className="flex justify-between items-center bg-orange-100 border-l-4 border-orange-500 p-3 rounded shadow"
+            className="flex justify-between items-center bg-orange-100 border-l-4 border-red-00 p-3 rounded shadow"
           >
             <span className="text-gray-700 font-medium">{notice.text}</span>
 
@@ -112,12 +116,12 @@ const NoticeManager = () => {
           placeholder="Add new notice"
           value={newNoticeText}
           onChange={(e) => setNewNoticeText(e.target.value)}
-          className="flex-1 border border-orange-300 rounded px-3 py-2 text-sm"
+          className="flex-1 border text-red-600 rounded px-3 py-2 text-sm"
         />
 
         <button
           onClick={addNotice}
-          className="bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600 text-sm font-semibold"
+          className="bg-red-600 text-white px-4 py-2 rounded hover:bg-orange-600 text-sm font-semibold"
         >
           Add
         </button>
