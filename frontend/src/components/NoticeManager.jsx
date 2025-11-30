@@ -68,63 +68,78 @@ const NoticeManager = () => {
 
   return (
     <section className="tab-content">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-bold text-red-600">
-          Notice Management
-        </h2>
+      <div className="flex justify-between items-center mb-6 pb-4 border-b border-gray-200">
+        <div>
+          <h2 className="text-3xl font-bold text-red-600 mb-1">
+            Notice Management
+          </h2>
+          <p className="text-sm text-gray-500">Manage scrolling notices for the TV screen</p>
+        </div>
 
         <button
           onClick={saveChanges}
-          className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"
+          className="bg-blue-600 text-white px-6 py-2.5 rounded-lg hover:bg-blue-700 transition-all duration-200 shadow-md hover:shadow-lg font-semibold transform hover:scale-105"
         >
-          Save Changes
+          💾 Save Changes
         </button>
       </div>
 
       {/* Notice list */}
-      <div className="space-y-2">
-        {notices.map((notice, i) => (
-          <div
-            key={notice.id}
-            className="flex justify-between items-center bg-orange-100 border-l-4 border-red-00 p-3 rounded shadow"
-          >
-            <span className="text-gray-700 font-medium">{notice.text}</span>
+      <div className="space-y-3 mb-6">
+        {notices.length > 0 ? (
+          notices.map((notice, i) => (
+            <div
+              key={notice.id}
+              className="flex justify-between items-center bg-orange-50 border-l-4 border-red-600 p-4 rounded-lg shadow-sm hover:shadow-md transition-all duration-200"
+            >
+              <span className="text-gray-700 font-medium flex-1 pr-4">{notice.text}</span>
 
-            <div className="flex gap-3">
-              <button
-                onClick={() => editNotice(i)}
-                className="text-blue-600 font-semibold text-sm hover:underline"
-              >
-                Edit
-              </button>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => editNotice(i)}
+                  className="text-blue-600 font-semibold text-sm hover:text-blue-700 hover:underline transition-colors px-2 py-1 rounded hover:bg-blue-50"
+                >
+                  ✏️ Edit
+                </button>
 
-              <button
-                onClick={() => deleteNotice(i)}
-                className="text-red-600 font-semibold text-sm hover:underline"
-              >
-                Delete
-              </button>
+                <button
+                  onClick={() => deleteNotice(i)}
+                  className="text-red-600 font-semibold text-sm hover:text-red-700 hover:underline transition-colors px-2 py-1 rounded hover:bg-red-50"
+                >
+                  🗑️ Delete
+                </button>
+              </div>
             </div>
+          ))
+        ) : (
+          <div className="bg-gray-50 border-2 border-dashed border-gray-300 p-6 rounded-lg text-center">
+            <p className="text-gray-500 text-sm italic">No notices added yet. Add one below.</p>
           </div>
-        ))}
+        )}
       </div>
 
       {/* Add new notice input */}
-      <div className="mt-4 flex gap-2">
-        <input
-          type="text"
-          placeholder="Add new notice"
-          value={newNoticeText}
-          onChange={(e) => setNewNoticeText(e.target.value)}
-          className="flex-1 border text-red-600 rounded px-3 py-2 text-sm"
-        />
+      <div className="mt-6 p-5 bg-gray-50 rounded-lg border border-gray-200">
+        <label className="block text-sm font-semibold text-gray-700 mb-3">
+          Add New Notice
+        </label>
+        <div className="flex gap-3">
+          <input
+            type="text"
+            placeholder="Enter notice text..."
+            value={newNoticeText}
+            onChange={(e) => setNewNoticeText(e.target.value)}
+            onKeyPress={(e) => e.key === "Enter" && addNotice()}
+            className="flex-1 border-2 border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all duration-200 shadow-sm"
+          />
 
-        <button
-          onClick={addNotice}
-          className="bg-red-600 text-white px-4 py-2 rounded hover:bg-orange-600 text-sm font-semibold"
-        >
-          Add
-        </button>
+          <button
+            onClick={addNotice}
+            className="bg-red-600 text-white px-6 py-2.5 rounded-lg hover:bg-red-700 text-sm font-semibold transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105"
+          >
+            ➕ Add Notice
+          </button>
+        </div>
       </div>
     </section>
   );

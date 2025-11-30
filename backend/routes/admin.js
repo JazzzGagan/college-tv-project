@@ -1,21 +1,78 @@
+
 import express from "express";
 import { Router } from "express";
 import auth from "../middleware/auth.js";
 import multer from "multer";
 import path from "path";
+import fs from "fs";
+import { fileURLToPath } from "url";
 
 const router = express.Router();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const TV_CONTENT_FILE = path.join(__dirname, "..", "tv-content.json");
+
+// ---- Helper functions for persistence ----
+const loadState = () => {
+  try {
+    if (fs.existsSync(TV_CONTENT_FILE)) {
+      const data = fs.readFileSync(TV_CONTENT_FILE, "utf8");
+      const content = JSON.parse(data);
+      
+      // Handle old format with "notice" (string) vs new format with "notices" (array)
+      let notices = [];
+      if (content.notices && Array.isArray(content.notices)) {
+        notices = content.notices;
+      } else if (content.notice && typeof content.notice === "string") {
+        // Convert old notice string to notices array format
+        if (content.notice.trim()) {
+          notices = [{ id: Date.now(), text: content.notice }];
+        }
+      }
+      
+      return {
+        leftImage: content.leftImage || null,
+        rightImage: content.rightImage || null,
+        videoUrl: content.videoUrl || null,
+        notices: notices,
+        description: content.description || "",
+      };
+    }
+  } catch (err) {
+    console.error("Error loading state:", err);
+  }
+  return {
+    leftImage: null,
+    rightImage: null,
+    videoUrl: null,
+    notices: [],
+    description: "",
+  };
+};
+
+const saveState = (state) => {
+  try {
+    const content = {
+      leftImage: state.leftImage || "",
+      rightImage: state.rightImage || "",
+      videoUrl: state.videoUrl || "",
+      notices: state.notices || [],
+      description: state.description || "",
+    };
+    fs.writeFileSync(TV_CONTENT_FILE, JSON.stringify(content, null, 2));
+    console.log("State saved to file:", content);
+  } catch (err) {
+    console.error("Error saving state:", err);
+  }
+};
 
 // ---- SSE Clients ----
 let clients = [];
 
 // ---- Current State to persist data ----
-let currentState = {
-  leftImage: null,
-  rightImage: null,
-  videoUrl: null,
-  notices: [],
-};
+let currentState = loadState();
+console.log("Loaded initial state:", currentState);
 
 // ---- SSE EVENTS ----
 router.get("/events", (req, res) => {
@@ -46,6 +103,8 @@ const broadcast = (data) => {
 //@route GET /current-state
 //@access Public
 router.get("/current-state", (req, res) => {
+  console.log("Current state requested:", currentState);
+  console.log("Description in currentState:", currentState.description);
   res.json(currentState);
 });
 
@@ -101,6 +160,9 @@ router.post(
     if (leftUrl) currentState.leftImage = leftUrl;
     if (rightUrl) currentState.rightImage = rightUrl;
 
+    // Save to file
+    saveState(currentState);
+
     // Broadcast update to connected clients
     broadcast({ type: "images", leftImage: leftUrl, rightImage: rightUrl });
 
@@ -141,6 +203,9 @@ router.post("/upload-video", uploadVideo.single("video"), (req, res) => {
   // Update current state
   currentState.videoUrl = videoUrl;
 
+  // Save to file
+  saveState(currentState);
+
   // Broadcast update
   broadcast({ type: "video", videoUrl });
 
@@ -157,10 +222,39 @@ router.post("/update-notices", (req, res) => {
   // Update current state
   currentState.notices = noticesArray;
 
+  // Save to file
+  saveState(currentState);
+
   // Broadcast update
   broadcast({ type: "notices", notices: noticesArray });
 
   res.json({ message: "Notices updated", notices: noticesArray });
+});
+
+// ---- UPDATE DESCRIPTION ----
+//@desc update description
+//@route POST /update-description
+//@access Private
+router.post("/update-description", (req, res) => {
+  const { description } = req.body;
+
+  if (description === undefined) {
+    return res.status(400).json({ message: "Description is required" });
+  }
+
+  // Update current state
+  currentState.description = description || "";
+
+  // Save to file
+  saveState(currentState);
+
+  // Broadcast update
+  broadcast({ type: "description", description: currentState.description });
+
+  res.json({ 
+    message: "Description updated successfully", 
+    description: currentState.description 
+  });
 });
 
 export default router;

@@ -45,32 +45,34 @@ const VideoManager = () => {
   };
   return (
     <section className="tab-content">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-bold text-red-600">Video Management</h2>
+      <div className="flex justify-between items-center mb-6 pb-4 border-b border-gray-200">
+        <div>
+          <h2 className="text-3xl font-bold text-red-600 mb-1">Video Management</h2>
+          <p className="text-sm text-gray-500">Upload and manage video content</p>
+        </div>
 
-        <button
-          onClick={handleUpload}
-          className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"
-        >
-          Save Changes
-        </button>
-        {uploadProgress > 0 && (
-          <div
-            style={{ marginTop: "10px", width: "300px", background: "#eee" }}
+        <div className="flex items-center gap-4">
+          {uploadProgress > 0 && (
+            <div className="flex flex-col items-end">
+              <div className="w-64 bg-gray-200 rounded-full h-2.5 shadow-inner">
+                <div
+                  className="bg-green-600 h-2.5 rounded-full transition-all duration-300 shadow-sm"
+                  style={{ width: `${uploadProgress}%` }}
+                />
+              </div>
+              <span className="text-xs text-gray-600 mt-1 font-medium">{uploadProgress}% uploaded</span>
+            </div>
+          )}
+          <button
+            onClick={handleUpload}
+            className="bg-blue-600 text-white px-6 py-2.5 rounded-lg hover:bg-blue-700 transition-all duration-200 shadow-md hover:shadow-lg font-semibold transform hover:scale-105"
           >
-            <div
-              style={{
-                width: `${uploadProgress}%`,
-                height: "10px",
-                background: "green",
-              }}
-            />
-            <span>{uploadProgress}%</span>
-          </div>
-        )}
+            💾 Save Changes
+          </button>
+        </div>
       </div>
 
-      <div className="mb-4">
+      <div className="mb-6">
         <input
           type="file"
           accept="video/*"
@@ -82,25 +84,24 @@ const VideoManager = () => {
 
         <label
           htmlFor="videoUpload"
-          className="bg-gray-500 text-white px-4 py-2 rounded cursor-pointer hover:bg-gray-700"
+          className="inline-block bg-gray-500 text-white px-5 py-2.5 rounded-lg cursor-pointer hover:bg-gray-600 transition-all duration-200 shadow-md hover:shadow-lg font-medium"
         >
-          Choose Videos
+          📁 Choose Video
         </label>
       </div>
       {selectedVideo && (
         <div className="flex flex-col gap-4">
-          <div className="flex flex-col gap-3 bg-gray-100 p-3 rounded shadow">
+          <div className="flex flex-col gap-4 bg-gray-50 p-6 rounded-xl shadow-md border border-gray-200">
             <video
               src={URL.createObjectURL(selectedVideo)}
               controls
-            
-              className="w-[950px] h-[450px] border rounded"
+              className="w-full max-w-4xl h-auto border-2 border-gray-300 rounded-lg shadow-sm"
             />
             <button
               onClick={() => setSelectedVideo(null)}
-              className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+              className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-all duration-200 shadow-sm hover:shadow-md font-medium self-start"
             >
-              Delete
+              🗑️ Remove Video
             </button>
           </div>
         </div>

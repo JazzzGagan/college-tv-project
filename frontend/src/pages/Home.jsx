@@ -6,6 +6,7 @@ const Home = () => {
   const [rightImage, setRightImage] = useState("");
   const [videoUrl, setVideoUrl] = useState("");
   const [notices, setNotices] = useState([]);
+  const [description, setDescription] = useState("");
 
   const [time, setTime] = useState("");
   const [date, setDate] = useState("");
@@ -44,13 +45,22 @@ const Home = () => {
   // Fetch current state + SSE
   useEffect(() => {
     const fetchCurrentState = async () => {
-      const res = await fetch("http://localhost:3000/api/current-state");
-      const data = await res.json();
-      setLeftImage(data.leftImage);
-      setRightImage(data.rightImage);
-      setVideoUrl(data.videoUrl);
-      setNotices(data.notices);
+      try {
+        const res = await fetch("http://localhost:3000/api/current-state");
+        const data = await res.json();
+        console.log("Fetched current state:", data);
+        console.log("Description from API:", data.description);
+        setLeftImage(data.leftImage);
+        setRightImage(data.rightImage);
+        setVideoUrl(data.videoUrl);
+        setNotices(data.notices);
+        setDescription(data.description || "");
+        console.log("Description state set to:", data.description || "");
+      } catch (err) {
+        console.error("Error fetching current state:", err);
+      }
     };
+    
     fetchCurrentState();
 
     const eventSource = new EventSource("http://localhost:3000/api/events");
@@ -67,9 +77,15 @@ const Home = () => {
         case "notices":
           setNotices(data.notices);
           break;
+        case "description":
+          setDescription(data.description || "");
+          break;
       }
     };
-    return () => eventSource.close();
+    
+    return () => {
+      eventSource.close();
+    };
   }, []);
 
   return (
@@ -109,22 +125,32 @@ const Home = () => {
           </div>
           <div className="bg-blue-700 text-white text-center p-2">
             <h2>Description</h2>
-            <p>{"No notice available."}</p>
+            <p className="whitespace-pre-wrap min-h-[50px]">
+              {description && description.trim() 
+                ? description 
+                : "No description available."}
+            </p>
           </div>
         </div>
         <img src={rightImage} className="w-1/4 object-cover" />
       </div>
 
       {/* Bottom Notices */}
-      <div className="bg-red-600 items-center text-white p-8 overflow-hidden">
-        <div className="flex animate-scroll whitespace-nowrap">
-          {notices.map((notice) => (
-            <span key={notice.id} className="flex items-center mr-8">
-              <span className="mr-2">•</span>
-              {notice.text || "No notice available."}
-            </span>
-          ))}
-        </div>
+      <div className="bg-red-600 items-center text-white py-6 overflow-hidden shadow-2xl border-t-4 border-red-700">
+        {notices.length > 0 ? (
+          <div className="flex animate-scroll whitespace-nowrap">
+            {notices.map((notice, index) => (
+              <span key={notice.id || index} className="flex items-center mr-16 text-lg font-semibold">
+                <span className="text-shadow-lg">{notice.text || "No notice available."}</span>
+                <span className="mx-8 text-xl opacity-50">|</span>
+              </span>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center text-lg font-semibold">
+            No notices available.
+          </div>
+        )}
       </div>
     </div>
   );

@@ -11,4 +11,17 @@
 
 .animate-scroll {
   animation: scroll 15s linear infinite;
+  animation-delay: 0ms;
+  animation-range: entry 0% complete 100%;
+}
+
+ 
+
+
+
+
+
+
+.text-shadow-lg {
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
 }
