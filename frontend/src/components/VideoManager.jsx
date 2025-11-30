@@ -106,7 +106,7 @@ const VideoManager = () => {
           >
             <video
               src={vid.preview}
-              controls
+              controls6
               className="w-[950px] h-[450px] border rounded"
             />
             <button
