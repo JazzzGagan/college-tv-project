@@ -9,6 +9,7 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
     { id: "videos", label: "Videos" },
     { id: "description", label: "Description" },
     { id: "notices", label: "Notices" },
+    { id: "events&news", label: "Events&News" },
   ];
 
   const handleLogout = () => {
@@ -37,7 +38,17 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
               }`}
             >
               <span className="flex items-center">
-                <span className="mr-2">{tab.id === "images" ? "" : tab.id === "videos" ? "" : tab.id === "description" ? "" : ""}</span>
+                <span className="mr-2">
+                  {tab.id === "images"
+                    ? ""
+                    : tab.id === "videos"
+                    ? ""
+                    : tab.id === "description"
+                    ? ""
+                    : tab.id === "events&news"
+                    ? ""
+                    : ""}
+                </span>
                 {tab.label}
               </span>
             </button>
@@ -51,7 +62,7 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
           onClick={handleLogout}
           className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold p-3.5 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-[1.02]"
         >
-          🚪 Logout
+          Logout
         </button>
       </div>
     </aside>

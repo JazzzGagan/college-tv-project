@@ -55,9 +55,8 @@ const NoticeManager = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(notices),
       });
-      const data = await res.json()
+      const data = await res.json();
       console.log(data);
-      
 
       alert("All notices saved!");
     } catch (err) {
@@ -73,7 +72,9 @@ const NoticeManager = () => {
           <h2 className="text-3xl font-bold text-red-600 mb-1">
             Notice Management
           </h2>
-          <p className="text-sm text-gray-500">Manage scrolling notices for the TV screen</p>
+          <p className="text-sm text-gray-500">
+            Manage scrolling notices for the TV screen
+          </p>
         </div>
 
         <button
@@ -92,7 +93,9 @@ const NoticeManager = () => {
               key={notice.id}
               className="flex justify-between items-center bg-orange-50 border-l-4 border-red-600 p-4 rounded-lg shadow-sm hover:shadow-md transition-all duration-200"
             >
-              <span className="text-gray-700 font-medium flex-1 pr-4">{notice.text}</span>
+              <span className="text-gray-700 font-medium flex-1 pr-4">
+                {notice.text}
+              </span>
 
               <div className="flex gap-3">
                 <button
@@ -113,7 +116,9 @@ const NoticeManager = () => {
           ))
         ) : (
           <div className="bg-gray-50 border-2 border-dashed border-gray-300 p-6 rounded-lg text-center">
-            <p className="text-gray-500 text-sm italic">No notices added yet. Add one below.</p>
+            <p className="text-gray-500 text-sm italic">
+              No notices added yet. Add one below.
+            </p>
           </div>
         )}
       </div>
