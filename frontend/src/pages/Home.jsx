@@ -140,14 +140,17 @@ const Home = () => {
         {notices.length > 0 ? (
           <div className="flex animate-scroll whitespace-nowrap">
             {notices.map((notice, index) => (
-              <span key={notice.id || index} className="flex items-center mr-16 text-lg font-semibold">
+              <span key={notice.id || index} className="flex items-center mr-16 text-2xl font-bold">
+                <span className="mr-4 text-2xl animate-pulse">📢</span>
                 <span className="text-shadow-lg">{notice.text || "No notice available."}</span>
-                <span className="mx-8 text-xl opacity-50">|</span>
+                <span className="mx-8 text-3xl opacity-50">|</span>
+              
               </span>
             ))}
           </div>
         ) : (
-          <div className="text-center text-lg font-semibold">
+          <div className="text-center text-2xl font-bold">
+            <span className="mr-3 text-3xl">📢</span>
             No notices available.
           </div>
         )}
