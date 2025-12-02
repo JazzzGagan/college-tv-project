@@ -1,7 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { FaPlus } from "react-icons/fa";
-import { FaSave } from "react-icons/fa";
+import { FaPlus, FaSave, FaTrash } from "react-icons/fa";
 
 const MAX_NEWS = 5;
 
@@ -10,6 +9,18 @@ const EventsNewsManager = () => {
     { title: "", description: "", image: null },
   ]);
 
+  // Clean up object URLs (avoid memory leak)
+  useEffect(() => {
+    return () => {
+      newsList.forEach((item) => {
+        if (item.image && typeof item.image !== "string") {
+          URL.revokeObjectURL(item.image);
+        }
+      });
+    };
+  }, [newsList]);
+
+  // Add new news box
   const handleAddNews = () => {
     if (newsList.length >= MAX_NEWS) {
       return alert("Maximum 5 news items allowed!");
@@ -17,19 +28,29 @@ const EventsNewsManager = () => {
     setNewsList([...newsList, { title: "", description: "", image: null }]);
   };
 
+  // Remove a news item
   const handleRemoveNews = (index) => {
     const updated = [...newsList];
     updated.splice(index, 1);
     setNewsList(updated);
   };
 
+  // Handle input changes
   const handleInputChange = (index, field, value) => {
     const updated = [...newsList];
     updated[index][field] = value;
     setNewsList(updated);
   };
 
+  // Save all news items
   const handleSave = async () => {
+    // Validation
+    for (let item of newsList) {
+      if (!item.title.trim() || !item.description.trim()) {
+        return alert("Please fill all title and description fields!");
+      }
+    }
+
     const formData = new FormData();
 
     newsList.forEach((item, index) => {
@@ -54,9 +75,11 @@ const EventsNewsManager = () => {
       alert("News saved successfully!");
     } catch (err) {
       console.error("Save failed:", err);
+      alert("Failed to save news.");
     }
   };
 
+  // Render each news block
   const renderNewsBox = (item, index) => {
     const preview =
       item.image && typeof item.image === "string"
@@ -70,16 +93,18 @@ const EventsNewsManager = () => {
         key={index}
         className="border rounded-xl p-5 bg-white shadow hover:shadow-lg transition"
       >
+        {/* Header with delete button */}
         <div className="flex justify-between mb-3">
           <h3 className="text-lg font-semibold text-gray-700">
             News {index + 1}
           </h3>
+
           {newsList.length > 1 && (
             <button
               onClick={() => handleRemoveNews(index)}
-              className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
+              className="px-3 py-1 bg-red-600 flex items-center gap-2 text-white rounded hover:bg-red-700"
             >
-              Delete
+              <FaTrash size={14} /> Delete
             </button>
           )}
         </div>
@@ -90,6 +115,7 @@ const EventsNewsManager = () => {
             <img
               src={preview}
               className="w-full h-full object-cover rounded-lg"
+              alt="preview"
             />
           ) : (
             <div className="flex flex-col items-center">
@@ -103,18 +129,29 @@ const EventsNewsManager = () => {
           )}
         </div>
 
-        {/* Upload */}
-        <label className="block mt-3 cursor-pointer text-sm bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-center">
-          Upload Image
-          <input
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={(e) =>
-              handleInputChange(index, "image", e.target.files[0])
-            }
-          />
-        </label>
+        {/* Upload + Delete Image Buttons */}
+        <div className="flex gap-3 mt-3">
+          <label className="cursor-pointer text-sm bg-blue-600 flex items-center justify-center gap-2 text-white px-4 py-2 rounded-lg hover:bg-blue-700 w-full text-center">
+            Upload Image
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) =>
+                handleInputChange(index, "image", e.target.files[0])
+              }
+            />
+          </label>
+
+          {preview && (
+            <button
+              onClick={() => handleInputChange(index, "image", null)}
+              className="bg-red-600 flex items-center justify-center gap-2 text-white px-4 py-2 rounded-lg text-sm hover:bg-red-700 w-full"
+            >
+              Remove
+            </button>
+          )}
+        </div>
 
         {/* Title */}
         <input
@@ -140,36 +177,32 @@ const EventsNewsManager = () => {
   };
 
   return (
-    <section className="tab-content">
+    <section className="p-5">
       {/* Header */}
       <div className="flex justify-between items-center mb-6 pb-4 border-b">
-        <div>
-          <h2 className="text-3xl font-bold text-red-600">
-            Events & News Manager
-          </h2>
-          <p className="text-gray-500 text-sm">
-            Upload images • Add news • Max 5 news items
-          </p>
-        </div>
+        <h2 className="text-3xl font-bold text-red-600">Events & News</h2>
 
-        <button
-          onClick={handleSave}
-          className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 shadow"
-        >
-          💾 Save All
-        </button>
+        <div className="flex gap-3">
+          {newsList.length < MAX_NEWS && (
+            <button
+              onClick={handleAddNews}
+              className="bg-green-600 text-white flex items-center gap-2 px-5 py-2 rounded-lg hover:bg-green-700"
+            >
+              Add News
+            </button>
+          )}
+
+          <button
+            onClick={handleSave}
+            className="bg-blue-600 text-white flex items-center gap-2 px-6 py-2 rounded-lg hover:bg-blue-700"
+          >
+            💾 Save All
+          </button>
+        </div>
       </div>
 
-      {/* Add button */}
-      <button
-        onClick={handleAddNews}
-        className="mb-5 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
-      >
-        <FaPlus /> Add News
-      </button>
-
-      {/* News List */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {/* News Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
         {newsList.map((item, index) => renderNewsBox(item, index))}
       </div>
     </section>

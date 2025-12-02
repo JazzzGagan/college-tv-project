@@ -97,7 +97,7 @@ const ImageManager = () => {
         </div>
         <div className="mt-4 flex flex-col sm:flex-row justify-center gap-2">
           <label className="cursor-pointer bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700 transition-all duration-200 shadow-sm hover:shadow-md font-medium">
-            📤 Upload
+            Upload
             <input
               type="file"
               accept="image/*"
@@ -110,7 +110,7 @@ const ImageManager = () => {
               onClick={() => handleFileChange(title, null)}
               className="bg-red-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-red-700 transition-all duration-200 shadow-sm hover:shadow-md font-medium"
             >
-              🗑️ Delete
+              Delete
             </button>
           )}
         </div>
@@ -122,8 +122,12 @@ const ImageManager = () => {
     <section className="tab-content">
       <div className="flex justify-between items-center mb-6 pb-4 border-b border-gray-200">
         <div>
-          <h2 className="text-3xl font-bold text-red-600 mb-1">Image Management</h2>
-          <p className="text-sm text-gray-500">Upload and manage left and right side images</p>
+          <h2 className="text-3xl font-bold text-red-600 mb-1">
+            Image Management
+          </h2>
+          <p className="text-sm text-gray-500">
+            Upload and manage left and right side images
+          </p>
         </div>
 
         <button
