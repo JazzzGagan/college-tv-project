@@ -1,12 +1,16 @@
 {
-  "leftImage": "http://localhost:3000/images/left.png",
+  "leftImage": "http://localhost:3000/images/left.jpg",
   "rightImage": "http://localhost:3000/images/right.jpg",
-  "videoUrl": "",
+  "videoUrl": "http://localhost:3000/video/video.mp4",
   "notices": [
     {
-      "id": "temp-1764495229690",
-      "text": "bisesh"
+      "id": "temp-1764496715486",
+      "text": "Admission open at Achs college Enroll as soon as possible with limited seats"
+    },
+    {
+      "id": "temp-1764496758453",
+      "text": "Cultural Fiesta will happen at 25th nov "
     }
   ],
-  "description": "trwteisld;s;df"
+  "description": "To be an innovative global leader in imparting competitive, quality education by transforming lives that will change the world for the better, at whatever level of human endeavor they are involved in.\n"
 }
