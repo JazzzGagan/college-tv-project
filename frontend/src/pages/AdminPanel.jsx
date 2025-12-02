@@ -4,6 +4,8 @@ import ImageManager from "../components/ImageManager";
 import VideoManager from "../components/VideoManager";
 import DescriptionManager from "../components/DescriptionManager";
 import NoticeManager from "../components/NoticeManager";
+import EventsNewsManager from "../components/EventsNewsManager";
+
 
 const AdminPanel = () => {
   const [activeTab, setActiveTab] = useState("images");
@@ -19,6 +21,7 @@ const AdminPanel = () => {
           {activeTab === "videos" && <VideoManager />}
           {activeTab === "description" && <DescriptionManager />}
           {activeTab === "notices" && <NoticeManager />}
+          {activeTab === "events&news" && <EventsNewsManager />}
         </div>
       </main>
     </div>
