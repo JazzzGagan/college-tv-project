@@ -5,6 +5,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import Login from "./pages/Login";
 import { ToastContainer } from "react-toastify";
 import Home from "./pages/Home";
+import NewHome from "./pages/NewHome";
 
 const queryClient = new QueryClient();
 
@@ -23,6 +24,7 @@ function App() {
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/" element={<Home />} />
+        <Route path="/home" element={<NewHome />} />
         <Route
           path="/admin"
           element={
