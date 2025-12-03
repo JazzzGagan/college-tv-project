@@ -141,14 +141,13 @@ const NewHome = () => {
 
         {/* Right: Navigation */}
         <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-6 ">
-          <Link to="/event">
-            <button
-              className="hover:text-blue-600 transition-colors whitespace-nowrap text-xs sm:text-base cursor-pointer"
-              style={{ fontFamily: "Montserrat, sans-serif" }}
-            >
-              Events & News
-            </button>
-          </Link>
+          <button
+            className="hover:text-blue-600 transition-colors whitespace-nowrap text-xs sm:text-base cursor-pointer"
+            style={{ fontFamily: "Montserrat, sans-serif" }}
+          >
+            Events & News
+          </button>
+
           <button
             className="hover:text-blue-600 transition-colors whitespace-nowrap text-xs sm:text-base cursor-pointer"
             style={{ fontFamily: "Montserrat, sans-serif" }}
