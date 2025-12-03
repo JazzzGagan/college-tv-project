@@ -6,6 +6,7 @@ import Login from "./pages/Login";
 import { ToastContainer } from "react-toastify";
 import Home from "./pages/Home";
 import NewHome from "./pages/NewHome";
+import CollegeEvents from "./pages/CollegeEvents";
 
 const queryClient = new QueryClient();
 
@@ -23,8 +24,9 @@ function App() {
       />
       <Routes>
         <Route path="/login" element={<Login />} />
-        <Route path="/" element={<Home />} />
-        <Route path="/home" element={<NewHome />} />
+        {/* <Route path="/" element={<Home />} /> */}
+        <Route path="/" element={<NewHome />} />
+        <Route path="/events" element={<CollegeEvents />} />
         <Route
           path="/admin"
           element={
