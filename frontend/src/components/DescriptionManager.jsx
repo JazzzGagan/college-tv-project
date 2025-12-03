@@ -26,7 +26,7 @@ const DescriptionManager = () => {
   const saveChanges = async () => {
     try {
       console.log("Saving description:", description);
-      
+
       const res = await fetch("http://localhost:3000/api/update-description", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -38,14 +38,21 @@ const DescriptionManager = () => {
         console.log("Save response:", data);
         alert("Description saved successfully!");
       } else {
-        const errorData = await res.json().catch(() => ({ message: "Unknown error" }));
+        const errorData = await res
+          .json()
+          .catch(() => ({ message: "Unknown error" }));
         console.error("Save error:", errorData);
         alert(`Failed to save description: ${errorData.message}`);
       }
     } catch (err) {
       console.error("Failed to save description:", err);
-      if (err.message.includes("fetch") || err.message.includes("NetworkError")) {
-        alert("Failed to connect to server. Please make sure the backend server is running on http://localhost:3000");
+      if (
+        err.message.includes("fetch") ||
+        err.message.includes("NetworkError")
+      ) {
+        alert(
+          "Failed to connect to server. Please make sure the backend server is running on http://localhost:3000"
+        );
       } else {
         alert(`Failed to save description: ${err.message}`);
       }
@@ -56,10 +63,12 @@ const DescriptionManager = () => {
     <section className="tab-content">
       <div className="flex justify-between items-center mb-6 pb-4 border-b border-gray-200">
         <div>
-          <h2 className="text-3xl font-bold text-blue-600 mb-1">
+          <h2 className="text-3xl font-bold text-red-600 mb-1">
             Description Management
           </h2>
-          <p className="text-sm text-gray-500">Edit the description displayed on the TV screen</p>
+          <p className="text-sm text-gray-500">
+            Edit the description displayed on the TV screen
+          </p>
         </div>
 
         <button
@@ -84,7 +93,8 @@ const DescriptionManager = () => {
           />
           <p className="mt-3 text-xs text-gray-500 flex items-center">
             <span className="mr-1">ℹ️</span>
-            This description will be displayed in the description section below the video on the TV screen.
+            This description will be displayed in the description section below
+            the video on the TV screen.
           </p>
         </div>
 
@@ -94,7 +104,9 @@ const DescriptionManager = () => {
               <span className="mr-2">👁️</span>
               Preview:
             </h3>
-            <p className="text-gray-700 whitespace-pre-wrap leading-relaxed">{description}</p>
+            <p className="text-gray-700 whitespace-pre-wrap leading-relaxed">
+              {description}
+            </p>
           </div>
         )}
 
@@ -112,4 +124,3 @@ const DescriptionManager = () => {
 };
 
 export default DescriptionManager;
-

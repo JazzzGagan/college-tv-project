@@ -1,6 +1,7 @@
 import React, { useRef, useState, useEffect } from "react";
 import logo from "../assets/images.png";
 import { Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 
 const NewHome = () => {
@@ -74,7 +75,12 @@ const NewHome = () => {
       const ampm = now.getHours() >= 12 ? "PM" : "AM";
       setTime(`${hrs}:${mins}:${secs} ${ampm}`);
 
-      const options = { weekday: "long", year: "numeric", month: "long", day: "numeric" };
+      const options = {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      };
       setDate(now.toLocaleDateString("en-US", options));
     };
     update();
@@ -212,9 +218,16 @@ const NewHome = () => {
       {/* Main Content */}
       <div className="flex-1 flex gap-4 p-6 overflow-hidden bg-gray-100">
         {/* Left Sidebar */}
+        <div className="w-1/4 flex flex-col gap-4">
+          <div className="flex-1 rounded-lg overflow-hidden shadow-md bg-white">
         <div className="w-1/5 flex flex-col gap-4">
           <div className="flex-1 rounded-lg overflow-hidden bg-white group animate-fade-in">
             {leftImage ? (
+              <img
+                src={leftImage}
+                alt="Left Image 1"
+                className="w-full h-full object-cover"
+              />
               <img 
                 src={leftImage} 
                 alt="Left Image 1" 
@@ -229,6 +242,11 @@ const NewHome = () => {
           </div>
           <div className="flex-1 rounded-lg overflow-hidden bg-white group animate-fade-in" style={{ animationDelay: '0.2s' }}>
             {leftImage ? (
+              <img
+                src={leftImage}
+                alt="Left Image 2"
+                className="w-full h-full object-cover"
+              />
               <img 
                 src={leftImage} 
                 alt="Left Image 2" 
@@ -244,6 +262,7 @@ const NewHome = () => {
         </div>
 
         {/* Center Video */}
+        <div className="w-1/2 rounded-lg overflow-hidden shadow-lg bg-black relative">
         <div className="flex-1 rounded-lg overflow-hidden bg-black relative">
           {videoUrl ? (
             <video
@@ -264,6 +283,21 @@ const NewHome = () => {
               frameBorder="0"
             />
           )}
+          <div
+            className="absolute bottom-8 right-8 rounded-full p-4 cursor-pointer transition-colors opacity-70"
+            style={{ backgroundColor: "#023F88" }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = "#0245a0";
+              e.currentTarget.style.opacity = "0.9";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = "#023F88";
+              e.currentTarget.style.opacity = "0.7";
+            }}
+          >
+            <div className="w-6 h-6 flex items-center justify-center">
+              <div className="w-1.5 h-6 bg-white rounded-sm"></div>
+              <div className="w-1.5 h-6 bg-white rounded-sm ml-1.5"></div>
           <div className="absolute bottom-6 right-6 rounded-full p-3 cursor-pointer opacity-70 hover:opacity-90 transition-opacity" style={{ backgroundColor: '#023F88' }}>
             <div className="w-5 h-5 flex items-center justify-center">
               <div className="w-1 h-5 bg-white rounded-sm"></div>
@@ -273,9 +307,16 @@ const NewHome = () => {
         </div>
 
         {/* Right Sidebar */}
+        <div className="w-1/4 flex flex-col gap-4">
+          <div className="flex-1 rounded-lg overflow-hidden shadow-md bg-white">
         <div className="w-1/5 flex flex-col gap-4">
           <div className="flex-1 rounded-lg overflow-hidden bg-white group animate-fade-in" style={{ animationDelay: '0.1s' }}>
             {rightImage ? (
+              <img
+                src={rightImage}
+                alt="Right Image 1"
+                className="w-full h-full object-cover"
+              />
               <img 
                 src={rightImage} 
                 alt="Right Image 1" 
@@ -290,6 +331,11 @@ const NewHome = () => {
           </div>
           <div className="flex-1 rounded-lg overflow-hidden bg-white group animate-fade-in" style={{ animationDelay: '0.3s' }}>
             {rightImage ? (
+              <img
+                src={rightImage}
+                alt="Right Image 2"
+                className="w-full h-full object-cover"
+              />
               <img 
                 src={rightImage} 
                 alt="Right Image 2" 
@@ -306,6 +352,10 @@ const NewHome = () => {
       </div>
 
       {/* Notices Bar */}
+      <div
+        className="text-white py-4 overflow-hidden shadow-lg"
+        style={{ backgroundColor: "#023F88" }}
+      >
       <div className="text-white py-3 overflow-hidden" style={{ backgroundColor: '#023F88' }}>
         <div className="flex items-center px-6">
           <div className="flex items-center gap-2 mr-6 shrink-0">
@@ -317,7 +367,10 @@ const NewHome = () => {
           <div className="flex-1 overflow-hidden relative">
             <div className="flex animate-scroll whitespace-nowrap">
               {notices.map((notice, index) => (
-                <span key={notice.id || index} className="flex items-center mr-12">
+                <span
+                  key={notice.id || index}
+                  className="flex items-center mr-12"
+                >
                   <span className="mr-2">●</span>
                   <span>{notice.text || "No notice available."}</span>
                 </span>
