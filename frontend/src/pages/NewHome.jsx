@@ -52,31 +52,12 @@ const NewHome = () => {
   
   const videoRef = useRef(null);
 
+  // Clock Update
   useEffect(() => {
-    if (videoUrl && videoRef.current) {
-      videoRef.current.load();
-      videoRef.current.play().catch((err) => {
-        console.log("Autoplay blocked:", err);
-      });
-    }
-  }, [videoUrl]);
-
-  // Clock & Date
-  useEffect(() => {
-    const update = () => {
-      const now = new Date();
-      const hrs = String(now.getHours() % 12 || 12).padStart(2, "0");
-      const mins = String(now.getMinutes()).padStart(2, "0");
-      const secs = String(now.getSeconds()).padStart(2, "0");
-      const ampm = now.getHours() >= 12 ? "PM" : "AM";
-      setTime(`${hrs}:${mins}:${secs} ${ampm}`);
-
-      const options = { weekday: "long", year: "numeric", month: "long", day: "numeric" };
-      setDate(now.toLocaleDateString("en-US", options));
-    };
-    update();
-    const id = setInterval(update, 1000);
-    return () => clearInterval(id);
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+    return () => clearInterval(timer);
   }, []);
 
   // Fetch current state + SSE
@@ -114,7 +95,14 @@ const NewHome = () => {
         case "description":
           setDescription(data.description || "");
           break;
+        default:
+          break;
       }
+    };
+
+    eventSource.onerror = (err) => {
+      console.log("SSE connection error:", err);
+      eventSource.close();
     };
 
     return () => {
@@ -256,25 +244,21 @@ const NewHome = () => {
           </div>
         </div>
 
-        {/* Right Sidebar */}
-        <div className="w-1/5 flex flex-col gap-4">
-          <div className="flex-1 rounded-lg overflow-hidden shadow-md bg-white">
-            {rightImage ? (
-              <img src={rightImage} alt="Right Image 1" className="w-full h-full object-cover" />
-            ) : (
-              <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                <span className="text-gray-400">No Image</span>
-              </div>
-            )}
-          </div>
-          <div className="flex-1 rounded-lg overflow-hidden shadow-md bg-white">
-            {rightImage ? (
-              <img src={rightImage} alt="Right Image 2" className="w-full h-full object-cover" />
-            ) : (
-              <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                <span className="text-gray-400">No Image</span>
-              </div>
-            )}
+          {/* Right Gallery Column */}
+          <div className="col-span-3 flex items-center justify-center">
+            <div className="w-full h-full rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all group bg-white">
+              {rightImage ? (
+                <img
+                  alt="Gallery"
+                  className="size-full object-cover group-hover:scale-105 transition-transform duration-700"
+                  src={rightImage}
+                />
+              ) : (
+                <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                  <span className="text-gray-400">No Image</span>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -310,8 +294,25 @@ const NewHome = () => {
 
       {/* Hidden Description */}
       <div className="hidden">{description}</div>
+
+      <style>{`
+        @keyframes scroll {
+          0% {
+            transform: translateX(0);
+          }
+          100% {
+            transform: translateX(-50%);
+          }
+        }
+        
+        .animate-scroll {
+          animation: scroll 30s linear infinite;
+        }
+        
+        .animate-scroll:hover {
+          animation-play-state: paused;
+        }
+      `}</style>
     </div>
   );
-};
-
-export default NewHome;
+}
