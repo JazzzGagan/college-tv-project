@@ -1,44 +1,26 @@
-import React, { useRef, useState, useEffect } from "react";
-import logo from "../assets/images.png";
+import { useState, useEffect, useRef } from "react";
+import { Clock, Bell, Volume2, VolumeX } from "lucide-react";
 
-const NewHome = () => {
+export default function Tv() {
+  const [currentTime, setCurrentTime] = useState(new Date());
+  const [isMuted, setIsMuted] = useState(true);
+
+  // Dynamic content states
   const [leftImage, setLeftImage] = useState("");
   const [rightImage, setRightImage] = useState("");
   const [videoUrl, setVideoUrl] = useState("");
   const [notices, setNotices] = useState([]);
   const [description, setDescription] = useState("");
 
-  const [time, setTime] = useState("");
-  const [date, setDate] = useState("");
-
-  const DEFAULT_VIDEO = "https://www.youtube.com/embed/WuQufuY3UBg";
   const videoRef = useRef(null);
+  const DEFAULT_VIDEO = "https://www.youtube.com/embed/WuQufuY3UBg";
 
+  // Clock Update
   useEffect(() => {
-    if (videoUrl && videoRef.current) {
-      videoRef.current.load();
-      videoRef.current.play().catch((err) => {
-        console.log("Autoplay blocked:", err);
-      });
-    }
-  }, [videoUrl]);
-
-  // Clock & Date
-  useEffect(() => {
-    const update = () => {
-      const now = new Date();
-      const hrs = String(now.getHours() % 12 || 12).padStart(2, "0");
-      const mins = String(now.getMinutes()).padStart(2, "0");
-      const secs = String(now.getSeconds()).padStart(2, "0");
-      const ampm = now.getHours() >= 12 ? "PM" : "AM";
-      setTime(`${hrs}:${mins}:${secs} ${ampm}`);
-
-      const options = { weekday: "long", year: "numeric", month: "long", day: "numeric" };
-      setDate(now.toLocaleDateString("en-US", options));
-    };
-    update();
-    const id = setInterval(update, 1000);
-    return () => clearInterval(id);
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+    return () => clearInterval(timer);
   }, []);
 
   // Fetch current state + SSE
@@ -53,7 +35,13 @@ const NewHome = () => {
         setNotices(data.notices || []);
         setDescription(data.description || "");
       } catch (err) {
-        console.log("Using mock data - backend not available");
+        console.log("Using mock data - backend not available", err);
+        setNotices([
+          { id: 1, text: "BCA semester 7th exams starts from wednesday" },
+          { id: 2, text: "Proposal defence of csit 6th starts from monday" },
+          { id: 3, text: "Annual sports week begins next month" },
+          { id: 4, text: "Library timings extended during exam period" },
+        ]);
       }
     };
 
@@ -76,7 +64,14 @@ const NewHome = () => {
         case "description":
           setDescription(data.description || "");
           break;
+        default:
+          break;
       }
+    };
+
+    eventSource.onerror = (err) => {
+      console.log("SSE connection error:", err);
+      eventSource.close();
     };
 
     return () => {
@@ -84,136 +79,201 @@ const NewHome = () => {
     };
   }, []);
 
+  // Auto-reload video when URL changes
+  useEffect(() => {
+    if (videoUrl && videoRef.current) {
+      videoRef.current.load();
+      videoRef.current.play().catch((err) => {
+        console.log("Autoplay blocked:", err);
+      });
+    }
+  }, [videoUrl]);
+
+  const formatTime = (date) => {
+    return date.toLocaleTimeString("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: true,
+    });
+  };
+
   return (
-    <div className="w-full h-screen bg-gray-100 flex flex-col">
-      {/* Top Bar */}
-      <div className="bg-white shadow-sm px-8 py-4 relative flex items-center">
-        {/* Left: Clock & Date */}
-        <div className="flex flex-col gap-2">
-          <div className="flex items-center gap-2">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <span>{time}</span>
+    <div className="bg-gradient-to-br from-slate-50 to-slate-100 relative size-full overflow-hidden">
+      {/* Header */}
+      <div className="absolute top-0 left-0 right-0 bg-white/95 backdrop-blur-sm shadow-sm z-10">
+        <div className="px-12 py-6 flex items-center justify-between">
+          {/* Logo */}
+          <div className="h-20">
+            <img
+              alt="College Logo"
+              className="h-full object-contain"
+              src="../assets/images.png"
+            />
           </div>
-          <div className="flex items-center gap-2">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
-            <span>{date}</span>
+
+          {/* Center Info */}
+          <div className="flex gap-12">
+            <div className="flex items-center gap-3">
+              <div className="bg-blue-50 rounded-full p-2.5">
+                <Clock className="size-5 text-blue-600" />
+              </div>
+              <div>
+                <div className="text-xs text-slate-500">Current Time</div>
+                <div className="text-slate-900 tracking-wide">
+                  {formatTime(currentTime)}
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
 
-        {/* Center: Logo  */}
-        <div className="absolute left-1/2 transform -translate-x-1/2 flex items-center">
-          <img src={logo} alt="ACHS Logo" className="h-16 object-contain" />
-        </div>
-
-        {/* Right: Navigation */}
-        <div className="flex gap-6 ml-auto">
-          <button className="hover:text-blue-600 transition-colors" style={{ fontFamily: 'Montserrat, sans-serif' }}>Events & News</button>
-          <button className="hover:text-blue-600 transition-colors" style={{ fontFamily: 'Montserrat, sans-serif' }}>College Gallery</button>
-          <button className="hover:text-blue-600 transition-colors" style={{ fontFamily: 'Montserrat, sans-serif' }}>Life at ACHS</button>
+          {/* Navigation */}
+          <div className="flex gap-8">
+            <button className="text-slate-700 hover:text-blue-600 transition-colors">
+              Events & News
+            </button>
+            <button className="text-slate-700 hover:text-blue-600 transition-colors">
+              College Gallery
+            </button>
+            <button className="text-slate-700 hover:text-blue-600 transition-colors">
+              Life at ACHS
+            </button>
+          </div>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 flex gap-4 p-6 overflow-hidden">
-        {/* Left Sidebar */}
-        <div className="w-1/5 flex flex-col gap-4">
-          <div className="flex-1 rounded-lg overflow-hidden shadow-md bg-white">
-            {leftImage ? (
-              <img src={leftImage} alt="Left Image 1" className="w-full h-full object-cover" />
-            ) : (
-              <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                <span className="text-gray-400">No Image</span>
-              </div>
-            )}
-          </div>
-          <div className="flex-1 rounded-lg overflow-hidden shadow-md bg-white">
-            {leftImage ? (
-              <img src={leftImage} alt="Left Image 2" className="w-full h-full object-cover" />
-            ) : (
-              <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                <span className="text-gray-400">No Image</span>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Center Video */}
-        <div className="flex-1 rounded-lg overflow-hidden shadow-lg bg-black relative">
-          {videoUrl ? (
-            <video
-              ref={videoRef}
-              src={videoUrl}
-              autoPlay
-              loop
-              controls
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <iframe src={DEFAULT_VIDEO} className="w-full h-full" allowFullScreen title="Default Video" />
-          )}
-          <div className="absolute bottom-8 right-8 rounded-full p-4 cursor-pointer transition-colors opacity-70" style={{ backgroundColor: '#023F88' }} onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#0245a0'; e.currentTarget.style.opacity = '0.9'; }} onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#023F88'; e.currentTarget.style.opacity = '0.7'; }}>
-            <div className="w-6 h-6 flex items-center justify-center">
-              <div className="w-1.5 h-6 bg-white rounded-sm"></div>
-              <div className="w-1.5 h-6 bg-white rounded-sm ml-1.5"></div>
+      <div className="absolute top-[120px] left-0 right-0 bottom-[100px] px-12 py-6">
+        <div className="grid grid-cols-12 gap-8 h-full">
+          {/* Left Gallery Column */}
+          <div className="col-span-3 flex items-center justify-center">
+            <div className="w-full h-full rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all group bg-white">
+              {leftImage ? (
+                <img
+                  alt="Gallery"
+                  className="size-full object-cover group-hover:scale-105 transition-transform duration-700"
+                  src={leftImage}
+                />
+              ) : (
+                <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                  <span className="text-gray-400">No Image</span>
+                </div>
+              )}
             </div>
           </div>
-        </div>
 
-        {/* Right Sidebar */}
-        <div className="w-1/5 flex flex-col gap-4">
-          <div className="flex-1 rounded-lg overflow-hidden shadow-md bg-white">
-            {rightImage ? (
-              <img src={rightImage} alt="Right Image 1" className="w-full h-full object-cover" />
-            ) : (
-              <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                <span className="text-gray-400">No Image</span>
-              </div>
-            )}
+          {/* Center Video */}
+          <div className="col-span-6 flex items-center justify-center">
+            <div className="relative w-full h-full rounded-2xl overflow-hidden shadow-2xl bg-black">
+              {videoUrl ? (
+                <video
+                  ref={videoRef}
+                  src={videoUrl}
+                  className="size-full object-cover"
+                  autoPlay
+                  loop
+                  muted={isMuted}
+                  playsInline
+                >
+                  Your browser does not support the video tag.
+                </video>
+              ) : (
+                <iframe
+                  src={DEFAULT_VIDEO}
+                  className="size-full"
+                  allowFullScreen
+                  title="Default Video"
+                />
+              )}
+
+              {/* Mute/Unmute Button */}
+              {videoUrl && (
+                <button
+                  onClick={() => setIsMuted(!isMuted)}
+                  className="absolute bottom-8 right-8 bg-blue-600/80 hover:bg-blue-600 backdrop-blur-sm rounded-full p-4 transition-all hover:scale-110 shadow-lg"
+                >
+                  {isMuted ? (
+                    <VolumeX className="size-6 text-white" />
+                  ) : (
+                    <Volume2 className="size-6 text-white" />
+                  )}
+                </button>
+              )}
+            </div>
           </div>
-          <div className="flex-1 rounded-lg overflow-hidden shadow-md bg-white">
-            {rightImage ? (
-              <img src={rightImage} alt="Right Image 2" className="w-full h-full object-cover" />
-            ) : (
-              <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                <span className="text-gray-400">No Image</span>
-              </div>
-            )}
+
+          {/* Right Gallery Column */}
+          <div className="col-span-3 flex items-center justify-center">
+            <div className="w-full h-full rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all group bg-white">
+              {rightImage ? (
+                <img
+                  alt="Gallery"
+                  className="size-full object-cover group-hover:scale-105 transition-transform duration-700"
+                  src={rightImage}
+                />
+              ) : (
+                <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                  <span className="text-gray-400">No Image</span>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Notices Bar */}
-      <div className="text-white py-4 overflow-hidden shadow-lg" style={{ backgroundColor: '#023F88' }}>
-        <div className="flex items-center px-6">
-          <div className="flex items-center gap-2 mr-8 shrink-0">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-            </svg>
-            <span>Updates</span>
-          </div>
-          {notices.length > 0 ? (
-            <div className="flex animate-scroll whitespace-nowrap">
-              {notices.map((notice, index) => (
-                <span key={notice.id || index} className="flex items-center mr-12">
-                  <span className="mr-2">●</span>
-                  <span>{notice.text || "No notice available."}</span>
-                </span>
-              ))}
+      {/* Bottom Updates Bar */}
+      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-r from-blue-900 to-blue-800 shadow-lg">
+        <div className="px-12 py-6 flex items-center gap-6">
+          <div className="flex items-center gap-3 flex-shrink-0">
+            <div className="bg-white/20 rounded-full p-2">
+              <Bell className="size-5 text-white" />
             </div>
-          ) : (
-            <div>No notices available.</div>
-          )}
+            <span className="text-white/90">Updates</span>
+          </div>
+
+          <div className="flex-1 overflow-hidden">
+            {notices.length > 0 ? (
+              <div className="flex gap-12 animate-scroll">
+                {[...notices, ...notices].map((notice, index) => (
+                  <div
+                    key={`${notice.id}-${index}`}
+                    className="flex items-center gap-3 flex-shrink-0"
+                  >
+                    <div className="size-1.5 rounded-full bg-blue-300" />
+                    <span className="text-white/95 whitespace-nowrap">
+                      {notice.text || "No notice available."}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-white/95">No notices available.</div>
+            )}
+          </div>
         </div>
       </div>
 
       {/* Hidden Description */}
       <div className="hidden">{description}</div>
+
+      <style>{`
+        @keyframes scroll {
+          0% {
+            transform: translateX(0);
+          }
+          100% {
+            transform: translateX(-50%);
+          }
+        }
+        
+        .animate-scroll {
+          animation: scroll 30s linear infinite;
+        }
+        
+        .animate-scroll:hover {
+          animation-play-state: paused;
+        }
+      `}</style>
     </div>
   );
-};
-
-export default NewHome;
+}
