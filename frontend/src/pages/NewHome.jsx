@@ -1,5 +1,7 @@
 import React, { useRef, useState, useEffect } from "react";
 import logo from "../assets/images.png";
+import { Link } from "react-router-dom";
+
 
 const NewHome = () => {
   // Default placeholder images - University themed
@@ -131,21 +133,10 @@ const NewHome = () => {
   }, []);
 
   // Icon components for quick links - matching the image style
-  const IconAcademics = () => (
+  const IconStaff = () => (
     <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: '#023F88' }}>
-      {/* Graduation cap base */}
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 14l9-5-9-5-9 5 9 5z" />
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
-      {/* Tassel on top right */}
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 8l-2 2" />
-      <circle cx="20" cy="7" r="1" fill="currentColor" />
-    </svg>
-  );
-
-  const IconResearch = () => (
-    <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: '#023F88' }}>
-      {/* Conical flask */}
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+      {/* People/Staff icon */}
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
     </svg>
   );
 
@@ -166,44 +157,51 @@ const NewHome = () => {
     </svg>
   );
 
+  const IconEvents = () => (
+    <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: '#023F88' }}>
+      {/* Calendar icon */}
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+    </svg>
+  );
+
   const quickLinks = [
-    { label: "Academics", icon: IconAcademics },
-    { label: "Research", icon: IconResearch },
-    { label: "Admissions", icon: IconAdmissions },
-    { label: "Campus Life", icon: IconCampusLife }
+    { label: "Events", icon: IconEvents, path: "/events" },
+    { label: "Staff", icon: IconStaff, path: "/staff" },
+    { label: "Admissions", icon: IconAdmissions, path: "#" },
+    { label: "Campus Life", icon: IconCampusLife, path: "#" }
   ];
 
   return (
     <div className="w-full h-screen bg-gray-100 flex flex-col overflow-hidden" style={{ fontFamily: 'Montserrat, sans-serif' }}>
-      {/* Top Header - Harvard Style */}
-      <header className="bg-white border-b-2" style={{ borderColor: '#023F88' }}>
-        <div className="px-12 py-4 flex items-center justify-between">
+      {/* Top Header - Minimalistic */}
+      <header className="bg-white border-b" style={{ borderColor: '#023F88' }}>
+        <div className="px-8 py-3 flex items-center justify-between">
           {/* Logo Section */}
           <div className="flex items-center gap-4">
             <img src={logo} alt="College Logo" className="h-16 object-contain" />
-            <div className="border-l-2 pl-4" style={{ borderColor: '#023F88' }}>
-              <div className="text-sm text-gray-600 uppercase tracking-wide">Excellence in Education</div>
-              <div className="text-xs text-gray-500 mt-1">{date}</div>
+            <div className="border-l pl-4" style={{ borderColor: '#e5e7eb' }}>
+              <div className="text-xs text-gray-600 uppercase tracking-wide">Excellence in Education</div>
+              <div className="text-xs text-gray-500 mt-0.5">{date}</div>
             </div>
           </div>
 
           {/* Time & Quick Info */}
           <div className="flex items-center gap-8">
             <div className="text-right">
-              <div className="text-3xl font-bold" style={{ color: '#023F88' }}>{time}</div>
-              <div className="text-xs text-gray-600 uppercase tracking-wide">Local Time</div>
+              <div className="text-xl font-semibold" style={{ color: '#023F88' }}>{time}</div>
+              <div className="text-xs text-gray-500">Local Time</div>
             </div>
-            <div className="h-12 w-px bg-gray-300"></div>
+            <div className="h-8 w-px bg-gray-200"></div>
             <div className="flex gap-6">
               {quickLinks.map((link, idx) => {
                 const IconComponent = link.icon;
                 return (
-                  <div key={idx} className="text-center cursor-pointer hover:opacity-70 transition-opacity">
+                  <Link key={idx} to={link.path || "#"} className="text-center cursor-pointer group">
                     <div className="flex justify-center mb-1">
                       <IconComponent />
                     </div>
-                    <div className="text-xs font-medium" style={{ color: '#023F88' }}>{link.label}</div>
-                  </div>
+                    <div className="text-xs text-gray-700 group-hover:text-gray-900 transition-colors">{link.label}</div>
+                  </Link>
                 );
               })}
             </div>
@@ -212,31 +210,41 @@ const NewHome = () => {
       </header>
 
       {/* Main Content */}
-      <div className="flex-1 flex gap-4 p-6 overflow-hidden bg-gray-200">
+      <div className="flex-1 flex gap-4 p-6 overflow-hidden bg-gray-100">
         {/* Left Sidebar */}
         <div className="w-1/5 flex flex-col gap-4">
-          <div className="flex-1 rounded-lg overflow-hidden shadow-md bg-white">
+          <div className="flex-1 rounded-lg overflow-hidden bg-white group animate-fade-in">
             {leftImage ? (
-              <img src={leftImage} alt="Left Image 1" className="w-full h-full object-cover" />
+              <img 
+                src={leftImage} 
+                alt="Left Image 1" 
+                className="w-full h-full object-cover transition-transform duration-700 ease-in-out group-hover:scale-110" 
+                style={{ animation: 'fadeIn 0.8s ease-in' }}
+              />
             ) : (
-              <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                <span className="text-gray-400">No Image</span>
+              <div className="w-full h-full bg-gray-100 flex items-center justify-center">
+                <span className="text-gray-400 text-sm">No Image</span>
               </div>
             )}
           </div>
-          <div className="flex-1 rounded-lg overflow-hidden shadow-md bg-white">
+          <div className="flex-1 rounded-lg overflow-hidden bg-white group animate-fade-in" style={{ animationDelay: '0.2s' }}>
             {leftImage ? (
-              <img src={leftImage} alt="Left Image 2" className="w-full h-full object-cover" />
+              <img 
+                src={leftImage} 
+                alt="Left Image 2" 
+                className="w-full h-full object-cover transition-transform duration-700 ease-in-out group-hover:scale-110" 
+                style={{ animation: 'fadeIn 0.8s ease-in 0.2s both' }}
+              />
             ) : (
-              <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                <span className="text-gray-400">No Image</span>
+              <div className="w-full h-full bg-gray-100 flex items-center justify-center">
+                <span className="text-gray-400 text-sm">No Image</span>
               </div>
             )}
           </div>
         </div>
 
         {/* Center Video */}
-        <div className="flex-1 rounded-lg overflow-hidden shadow-lg bg-black relative">
+        <div className="flex-1 rounded-lg overflow-hidden bg-black relative">
           {videoUrl ? (
             <video
               ref={videoRef}
@@ -256,31 +264,41 @@ const NewHome = () => {
               frameBorder="0"
             />
           )}
-          <div className="absolute bottom-8 right-8 rounded-full p-4 cursor-pointer transition-colors opacity-70" style={{ backgroundColor: '#023F88' }} onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#0245a0'; e.currentTarget.style.opacity = '0.9'; }} onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#023F88'; e.currentTarget.style.opacity = '0.7'; }}>
-            <div className="w-6 h-6 flex items-center justify-center">
-              <div className="w-1.5 h-6 bg-white rounded-sm"></div>
-              <div className="w-1.5 h-6 bg-white rounded-sm ml-1.5"></div>
+          <div className="absolute bottom-6 right-6 rounded-full p-3 cursor-pointer opacity-70 hover:opacity-90 transition-opacity" style={{ backgroundColor: '#023F88' }}>
+            <div className="w-5 h-5 flex items-center justify-center">
+              <div className="w-1 h-5 bg-white rounded-sm"></div>
+              <div className="w-1 h-5 bg-white rounded-sm ml-1"></div>
             </div>
           </div>
         </div>
 
         {/* Right Sidebar */}
         <div className="w-1/5 flex flex-col gap-4">
-          <div className="flex-1 rounded-lg overflow-hidden shadow-md bg-white">
+          <div className="flex-1 rounded-lg overflow-hidden bg-white group animate-fade-in" style={{ animationDelay: '0.1s' }}>
             {rightImage ? (
-              <img src={rightImage} alt="Right Image 1" className="w-full h-full object-cover" />
+              <img 
+                src={rightImage} 
+                alt="Right Image 1" 
+                className="w-full h-full object-cover transition-transform duration-700 ease-in-out group-hover:scale-110" 
+                style={{ animation: 'fadeIn 0.8s ease-in 0.1s both' }}
+              />
             ) : (
-              <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                <span className="text-gray-400">No Image</span>
+              <div className="w-full h-full bg-gray-100 flex items-center justify-center">
+                <span className="text-gray-400 text-sm">No Image</span>
               </div>
             )}
           </div>
-          <div className="flex-1 rounded-lg overflow-hidden shadow-md bg-white">
+          <div className="flex-1 rounded-lg overflow-hidden bg-white group animate-fade-in" style={{ animationDelay: '0.3s' }}>
             {rightImage ? (
-              <img src={rightImage} alt="Right Image 2" className="w-full h-full object-cover" />
+              <img 
+                src={rightImage} 
+                alt="Right Image 2" 
+                className="w-full h-full object-cover transition-transform duration-700 ease-in-out group-hover:scale-110" 
+                style={{ animation: 'fadeIn 0.8s ease-in 0.3s both' }}
+              />
             ) : (
-              <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                <span className="text-gray-400">No Image</span>
+              <div className="w-full h-full bg-gray-100 flex items-center justify-center">
+                <span className="text-gray-400 text-sm">No Image</span>
               </div>
             )}
           </div>
@@ -288,13 +306,13 @@ const NewHome = () => {
       </div>
 
       {/* Notices Bar */}
-      <div className="text-white py-4 overflow-hidden shadow-lg" style={{ backgroundColor: '#023F88' }}>
+      <div className="text-white py-3 overflow-hidden" style={{ backgroundColor: '#023F88' }}>
         <div className="flex items-center px-6">
-          <div className="flex items-center gap-2 mr-8 shrink-0 z-10 relative bg-inherit">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="flex items-center gap-2 mr-6 shrink-0">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
             </svg>
-            <span>Updates</span>
+            <span className="text-sm font-medium">Updates</span>
           </div>
           <div className="flex-1 overflow-hidden relative">
             <div className="flex animate-scroll whitespace-nowrap">
