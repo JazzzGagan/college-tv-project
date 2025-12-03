@@ -6,7 +6,6 @@ import Login from "./pages/Login";
 import { ToastContainer } from "react-toastify";
 import Home from "./pages/Home";
 import NewHome from "./pages/NewHome";
-import EventsPage from "./pages/EventPage";
 
 const queryClient = new QueryClient();
 
@@ -26,7 +25,6 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/" element={<Home />} />
         <Route path="/home" element={<NewHome />} />
-        <Route path="/event" element={<EventsPage />} />
         <Route
           path="/admin"
           element={
