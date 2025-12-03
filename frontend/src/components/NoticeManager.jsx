@@ -102,14 +102,14 @@ const NoticeManager = () => {
                   onClick={() => editNotice(i)}
                   className="text-blue-600 font-semibold text-sm hover:text-blue-700 hover:underline transition-colors px-2 py-1 rounded hover:bg-blue-50"
                 >
-                  ✏️ Edit
+                  Edit
                 </button>
 
                 <button
                   onClick={() => deleteNotice(i)}
                   className="text-red-600 font-semibold text-sm hover:text-red-700 hover:underline transition-colors px-2 py-1 rounded hover:bg-red-50"
                 >
-                  🗑️ Delete
+                  Delete
                 </button>
               </div>
             </div>
@@ -142,7 +142,7 @@ const NoticeManager = () => {
             onClick={addNotice}
             className="bg-red-600 text-white px-6 py-2.5 rounded-lg hover:bg-red-700 text-sm font-semibold transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105"
           >
-            ➕ Add Notice
+            Add Notice
           </button>
         </div>
       </div>
