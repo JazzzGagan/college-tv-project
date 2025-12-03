@@ -1,5 +1,6 @@
 import React, { useRef, useState, useEffect } from "react";
 import logo from "../assets/images.png";
+import { Link } from "react-router-dom";
 
 const NewHome = () => {
   const [leftImage, setLeftImage] = useState("");
@@ -129,31 +130,33 @@ const NewHome = () => {
           </div>
         </div>
 
-        {/*  Logo */}
+        {/* Center: Logo */}
         <div className="flex justify-center flex-grow sm:flex-grow-0">
           <img
             src={logo}
             alt="ACHS Logo"
-            className="h-10 sm:h-12 md:h-16 lg:h-20 xl:h-24 object-contain"
+            className="h-10 sm:h-12 md:h-16 lg:h-20 xl:h-24 object-contain cursor-pointer"
           />
         </div>
 
         {/* Right: Navigation */}
-        <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-6">
+        <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-6 ">
+          <Link to="/event">
+            <button
+              className="hover:text-blue-600 transition-colors whitespace-nowrap text-xs sm:text-base cursor-pointer"
+              style={{ fontFamily: "Montserrat, sans-serif" }}
+            >
+              Events & News
+            </button>
+          </Link>
           <button
-            className="hover:text-blue-600 transition-colors whitespace-nowrap text-xs sm:text-base"
-            style={{ fontFamily: "Montserrat, sans-serif" }}
-          >
-            Events & News
-          </button>
-          <button
-            className="hover:text-blue-600 transition-colors whitespace-nowrap text-xs sm:text-base"
+            className="hover:text-blue-600 transition-colors whitespace-nowrap text-xs sm:text-base cursor-pointer"
             style={{ fontFamily: "Montserrat, sans-serif" }}
           >
             College Gallery
           </button>
           <button
-            className="hover:text-blue-600 transition-colors whitespace-nowrap text-xs sm:text-base"
+            className="hover:text-blue-600 transition-colors whitespace-nowrap text-xs sm:text-base cursor-pointer"
             style={{ fontFamily: "Montserrat, sans-serif" }}
           >
             Life at ACHS
@@ -164,7 +167,7 @@ const NewHome = () => {
       {/* Main Content */}
       <div className="flex-1 flex gap-4 p-6 overflow-hidden">
         {/* Left Sidebar */}
-        <div className="w-1/5 flex flex-col gap-4">
+        <div className="w-1/4 flex flex-col gap-4">
           <div className="flex-1 rounded-lg overflow-hidden shadow-md bg-white">
             {leftImage ? (
               <img
@@ -194,7 +197,7 @@ const NewHome = () => {
         </div>
 
         {/* Center Video */}
-        <div className="flex-1 rounded-lg overflow-hidden shadow-lg bg-black relative">
+        <div className="w-1/2 rounded-lg overflow-hidden shadow-lg bg-black relative">
           {videoUrl ? (
             <video
               ref={videoRef}
@@ -232,7 +235,7 @@ const NewHome = () => {
         </div>
 
         {/* Right Sidebar */}
-        <div className="w-1/5 flex flex-col gap-4">
+        <div className="w-1/4 flex flex-col gap-4">
           <div className="flex-1 rounded-lg overflow-hidden shadow-md bg-white">
             {rightImage ? (
               <img
