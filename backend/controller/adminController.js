@@ -1,15 +1,9 @@
-import express from "express";
-import { Router } from "express";
-import auth from "../middleware/auth.js";
 import multer from "multer";
 import path from "path";
+import asyncHandler from "express-async-handler";
 
-const router = express.Router();
-
-// ---- SSE Clients ----
 let clients = [];
 
-// ---- Current State to persist data ----
 let currentState = {
   leftImage: null,
   rightImage: null,
@@ -17,34 +11,28 @@ let currentState = {
   notices: [],
 };
 
-// ---- SSE EVENTS ----
-router.get("/events", (req, res) => {
+export const serverSentEvent = asyncHandler(async (req, res) => {
   res.setHeader("Content-Type", "text/event-stream");
   res.setHeader("Cache-Control", "no-cache");
   res.setHeader("Connection", "keep-alive");
   res.flushHeaders();
 
-  // Add new client
   clients.push(res);
-
-  // Remove client on disconnect
   req.on("close", () => {
     clients = clients.filter((c) => c !== res);
   });
 });
 
-// ---- BROADCAST FUNCTION ----
 const broadcast = (data) => {
   clients.forEach((client) => {
     client.write(`data: ${JSON.stringify(data)}\n\n`);
   });
 };
 
-// ---- GET CURRENT STATE ----
 //@desc Get current images, video, notices
 //@route GET /current-state
 //@access Public
-router.get("/current-state", (req, res) => {
+export const sendState = asyncHandler(async (req, res) => {
   res.json(currentState);
 });
 
@@ -52,7 +40,7 @@ router.get("/current-state", (req, res) => {
 //@desc login admin
 //@route POST /login
 //@access Private
-router.post("/login", (req, res) => {
+export const loginAdmin = asyncHandler(async (req, res) => {
   const { username, password } = req.body;
 
   if (username === "admin" && password === "pass123") {
@@ -75,16 +63,16 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-// ---- UPLOAD LEFT AND RIGHT IMAGES ----
 //@desc upload left and right images
 //@route POST /admin/upload
 //@access Private
-router.post(
-  "/upload",
+export const uploadImage = asyncHandler(
+  async,
   upload.fields([
     { name: "left", maxCount: 1 },
     { name: "right", maxCount: 1 },
   ]),
+
   (req, res) => {
     const leftFile = req.files.left?.[0];
     const rightFile = req.files.right?.[0];
@@ -132,25 +120,29 @@ const uploadVideo = multer({
 //@desc upload video
 //@route POST /admin/upload-video
 //@access Private
-router.post("/upload-video", uploadVideo.single("video"), (req, res) => {
-  if (!req.file)
-    return res.status(400).json({ message: "No video file provided" });
+export const addVideo = asyncHandler(
+  async,
+  uploadVideo.single("video"),
+  (req, res) => {
+    if (!req.file)
+      return res.status(400).json({ message: "No video file provided" });
 
-  const videoUrl = `http://localhost:3000/video/${req.file.filename}`;
+    const videoUrl = `http://localhost:3000/video/${req.file.filename}`;
 
-  currentState.videoUrl = videoUrl;
+    currentState.videoUrl = videoUrl;
 
-  // Broadcast update
-  broadcast({ type: "video", videoUrl });
+    // Broadcast update
+    broadcast({ type: "video", videoUrl });
 
-  res.json({ message: "Video uploaded successfully", videoUrl });
-});
+    res.json({ message: "Video uploaded successfully", videoUrl });
+  }
+);
 
 // ---- UPDATE NOTICES ----
 //@desc update notices
 //@route POST /admin/update-notices
 //@access Private
-router.post("/update-notices", (req, res) => {
+export const updateNotices = asyncHandler(async (req, res) => {
   const noticesArray = req.body;
 
   // Update current state
@@ -168,7 +160,7 @@ router.post("/update-notices", (req, res) => {
 //@desc update description
 //@route POST /update-description
 //@access Private
-router.post("/update-description", (req, res) => {
+export const updateDescription = asyncHandler(async (req, res) => {
   const { description } = req.body;
 
   if (description === undefined) {
@@ -187,4 +179,4 @@ router.post("/update-description", (req, res) => {
   });
 });
 
-export default router;
+
