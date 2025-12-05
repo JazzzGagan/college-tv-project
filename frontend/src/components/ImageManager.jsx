@@ -1,5 +1,5 @@
 import axios from "axios";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 const ImageManager = () => {
   // Use backend keys for state keys: leftTop, leftBottom, rightTop, rightBottom
@@ -58,7 +58,7 @@ const ImageManager = () => {
       alert("Images uploaded successfully!");
 
       // Optional: refresh images from backend after upload
-      const res = await axios.get("http://localhost:3000/api/images");
+      const res = await axios.post("http://localhost:3000/api/upload");
       const data = res.data;
       setImages({
         leftTop: data.leftTop || null,
