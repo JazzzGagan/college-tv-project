@@ -1,5 +1,5 @@
 import axios from "axios";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 const ImageManager = () => {
   // Use backend keys for state keys: leftTop, leftBottom, rightTop, rightBottom
@@ -10,18 +10,23 @@ const ImageManager = () => {
     rightBottom: null,
   });
 
-  // Fetch current images from backend on component mount
+  //Fetch current images from backend on component mount
   useEffect(() => {
     const fetchImages = async () => {
       try {
-        const res = await axios.get("http://localhost:3000/api/images"); // Adjust endpoint if needed
+        const res = await axios.get("http://localhost:3000/api/all-images");
         const data = res.data;
 
+        console.log("test", res.data);
+
         setImages({
-          leftTop: data.leftTop || null,
-          leftBottom: data.leftBottom || null,
-          rightTop: data.rightTop || null,
-          rightBottom: data.rightBottom || null,
+          leftTop: data.images.leftTop[data.images.leftTop.length - 1] || null,
+          leftBottom:
+            data.images.leftBottom[data.images.leftBottom.length - 1] || null,
+          rightTop:
+            data.images.rightTop[data.images.rightTop.length - 1] || null,
+          rightBottom:
+            data.images.rightBottom[data.images.rightBottom.length - 1] || null,
         });
       } catch (err) {
         console.error("Failed to load images", err);
@@ -52,25 +57,32 @@ const ImageManager = () => {
     });
 
     try {
-      await axios.post("http://localhost:3000/api/upload", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      const res = await axios.post(
+        "http://localhost:3000/api/upload",
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
       alert("Images uploaded successfully!");
 
-      // Optional: refresh images from backend after upload
-      const res = await axios.get("http://localhost:3000/api/images");
       const data = res.data;
+      console.log("response", res.data);
       setImages({
-        leftTop: data.leftTop || null,
-        leftBottom: data.leftBottom || null,
-        rightTop: data.rightTop || null,
-        rightBottom: data.rightBottom || null,
+        leftTop: data.images.leftTop[data.images.leftTop.length - 1] || null,
+        leftBottom:
+          data.images.leftBottom[data.images.leftBottom.length - 1] || null,
+        rightTop: data.images.rightTop[data.images.rightTop.length - 1] || null,
+        rightBottom:
+          data.images.rightBottom[data.images.rightBottom.length - 1] || null,
       });
     } catch (err) {
       console.error("Upload failed:", err);
       alert("Failed to upload images.");
     }
   };
+
+  console.log("outside", images);
 
   // Render a single image box with preview, upload, and delete buttons
   const renderImageBox = (label, key) => {
