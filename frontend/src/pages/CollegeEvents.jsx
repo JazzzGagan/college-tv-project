@@ -120,7 +120,7 @@ export default function App() {
       </header>
 
       {/* Events Grid */}
-      <div className="grid grid-cols-3 gap-6">
+      <div className="grid grid-cols-4 gap-6">
         {events.map((event, index) => (
           <EventCard key={event.id} event={event} index={index} />
         ))}
