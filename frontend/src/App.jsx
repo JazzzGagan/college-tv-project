@@ -7,6 +7,7 @@ import { ToastContainer } from "react-toastify";
 import Home from "./pages/Home";
 import NewHome from "./pages/NewHome";
 import CollegeEvents from "./pages/CollegeEvents";
+import Staff from "./pages/Staff";
 
 const queryClient = new QueryClient();
 
@@ -27,6 +28,7 @@ function App() {
         {/* <Route path="/" element={<Home />} /> */}
         <Route path="/" element={<NewHome />} />
         <Route path="/events" element={<CollegeEvents />} />
+        <Route path="/staff" element={<Staff />} />
         <Route
           path="/admin"
           element={
