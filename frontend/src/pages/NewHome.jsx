@@ -1,7 +1,6 @@
 import React, { useRef, useState, useEffect } from "react";
 import logo from "../assets/images.png";
 import { Link } from "react-router-dom";
-import { Link } from "react-router-dom";
 
 
 const NewHome = () => {
@@ -216,18 +215,11 @@ const NewHome = () => {
       </header>
 
       {/* Main Content */}
-      <div className="flex-1 flex gap-4 p-6 overflow-hidden bg-gray-100">
+      <div className="flex-1 flex gap-4 p-6 overflow-hidden bg-gray-200">
         {/* Left Sidebar */}
         <div className="w-1/4 flex flex-col gap-4">
-          <div className="flex-1 rounded-lg overflow-hidden shadow-md bg-white">
-        <div className="w-1/5 flex flex-col gap-4">
           <div className="flex-1 rounded-lg overflow-hidden bg-white group animate-fade-in">
             {leftImage ? (
-              <img
-                src={leftImage}
-                alt="Left Image 1"
-                className="w-full h-full object-cover"
-              />
               <img 
                 src={leftImage} 
                 alt="Left Image 1" 
@@ -242,11 +234,6 @@ const NewHome = () => {
           </div>
           <div className="flex-1 rounded-lg overflow-hidden bg-white group animate-fade-in" style={{ animationDelay: '0.2s' }}>
             {leftImage ? (
-              <img
-                src={leftImage}
-                alt="Left Image 2"
-                className="w-full h-full object-cover"
-              />
               <img 
                 src={leftImage} 
                 alt="Left Image 2" 
@@ -262,7 +249,6 @@ const NewHome = () => {
         </div>
 
         {/* Center Video */}
-        <div className="w-1/2 rounded-lg overflow-hidden shadow-lg bg-black relative">
         <div className="flex-1 rounded-lg overflow-hidden bg-black relative">
           {videoUrl ? (
             <video
@@ -283,21 +269,6 @@ const NewHome = () => {
               frameBorder="0"
             />
           )}
-          <div
-            className="absolute bottom-8 right-8 rounded-full p-4 cursor-pointer transition-colors opacity-70"
-            style={{ backgroundColor: "#023F88" }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = "#0245a0";
-              e.currentTarget.style.opacity = "0.9";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = "#023F88";
-              e.currentTarget.style.opacity = "0.7";
-            }}
-          >
-            <div className="w-6 h-6 flex items-center justify-center">
-              <div className="w-1.5 h-6 bg-white rounded-sm"></div>
-              <div className="w-1.5 h-6 bg-white rounded-sm ml-1.5"></div>
           <div className="absolute bottom-6 right-6 rounded-full p-3 cursor-pointer opacity-70 hover:opacity-90 transition-opacity" style={{ backgroundColor: '#023F88' }}>
             <div className="w-5 h-5 flex items-center justify-center">
               <div className="w-1 h-5 bg-white rounded-sm"></div>
@@ -308,15 +279,8 @@ const NewHome = () => {
 
         {/* Right Sidebar */}
         <div className="w-1/4 flex flex-col gap-4">
-          <div className="flex-1 rounded-lg overflow-hidden shadow-md bg-white">
-        <div className="w-1/5 flex flex-col gap-4">
           <div className="flex-1 rounded-lg overflow-hidden bg-white group animate-fade-in" style={{ animationDelay: '0.1s' }}>
             {rightImage ? (
-              <img
-                src={rightImage}
-                alt="Right Image 1"
-                className="w-full h-full object-cover"
-              />
               <img 
                 src={rightImage} 
                 alt="Right Image 1" 
@@ -331,11 +295,6 @@ const NewHome = () => {
           </div>
           <div className="flex-1 rounded-lg overflow-hidden bg-white group animate-fade-in" style={{ animationDelay: '0.3s' }}>
             {rightImage ? (
-              <img
-                src={rightImage}
-                alt="Right Image 2"
-                className="w-full h-full object-cover"
-              />
               <img 
                 src={rightImage} 
                 alt="Right Image 2" 
@@ -352,10 +311,6 @@ const NewHome = () => {
       </div>
 
       {/* Notices Bar */}
-      <div
-        className="text-white py-4 overflow-hidden shadow-lg"
-        style={{ backgroundColor: "#023F88" }}
-      >
       <div className="text-white py-3 overflow-hidden" style={{ backgroundColor: '#023F88' }}>
         <div className="flex items-center px-6">
           <div className="flex items-center gap-2 mr-6 shrink-0">
