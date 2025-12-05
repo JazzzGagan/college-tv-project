@@ -1,6 +1,5 @@
 import multer from "multer";
 import path from "path";
-import asyncHandler from "express-async-handler";
 
 let clients = [];
 
@@ -11,7 +10,7 @@ let currentState = {
   notices: [],
 };
 
-export const serverSentEvent = asyncHandler(async (req, res) => {
+export const serverSentEvent = async (req, res) => {
   res.setHeader("Content-Type", "text/event-stream");
   res.setHeader("Cache-Control", "no-cache");
   res.setHeader("Connection", "keep-alive");
@@ -21,7 +20,7 @@ export const serverSentEvent = asyncHandler(async (req, res) => {
   req.on("close", () => {
     clients = clients.filter((c) => c !== res);
   });
-});
+};
 
 const broadcast = (data) => {
   clients.forEach((client) => {
@@ -32,15 +31,15 @@ const broadcast = (data) => {
 //@desc Get current images, video, notices
 //@route GET /current-state
 //@access Public
-export const sendState = asyncHandler(async (req, res) => {
+export const sendState = async (req, res) => {
   res.json(currentState);
-});
+};
 
 // ---- ADMIN LOGIN ----
 //@desc login admin
 //@route POST /login
 //@access Private
-export const loginAdmin = asyncHandler(async (req, res) => {
+export const loginAdmin = async (req, res) => {
   const { username, password } = req.body;
 
   if (username === "admin" && password === "pass123") {
@@ -48,7 +47,7 @@ export const loginAdmin = asyncHandler(async (req, res) => {
   } else {
     res.status(401).json({ message: "Invalid credentials" });
   }
-});
+};
 
 // ---- IMAGE UPLOAD CONFIG ----
 const storage = multer.diskStorage({
@@ -62,44 +61,46 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({ storage });
+export const uploadImageMiddleWare = upload.fields([
+  {
+    name: "left",
+    maxCount: 1,
+  },
+  { name: "right", maxCount: 1 },
+]);
 
 //@desc upload left and right images
 //@route POST /admin/upload
 //@access Private
-export const uploadImage = asyncHandler(
-  async,
-  upload.fields([
-    { name: "left", maxCount: 1 },
-    { name: "right", maxCount: 1 },
-  ]),
+export const uploadImage = async (req, res) => {
+  const leftFile = req.files?.left?.[0];
+  const rightFile = req.files?.right?.[0];
 
-  (req, res) => {
-    const leftFile = req.files.left?.[0];
-    const rightFile = req.files.right?.[0];
+  const leftUrl = leftFile
+    ? `http://localhost:3000/images/${leftFile.filename}`
+    : currentState.leftImage;
 
-    const leftUrl = leftFile
-      ? `http://localhost:3000/images/${leftFile.filename}`
-      : null;
-    const rightUrl = rightFile
-      ? `http://localhost:3000/images/${rightFile.filename}`
-      : null;
+  const rightUrl = rightFile
+    ? `http://localhost:3000/images/${rightFile.filename}`
+    : currentState.rightImage;
 
-    // Update current state
-    if (leftUrl) currentState.leftImage = leftUrl;
-    if (rightUrl) currentState.rightImage = rightUrl;
+  // Update global state
+  currentState.leftImage = leftUrl;
+  currentState.rightImage = rightUrl;
 
-    // Save to file
+  // Broadcast update to clients (SSE)
+  broadcast({
+    type: "images",
+    leftImage: leftUrl,
+    rightImage: rightUrl,
+  });
 
-    // Broadcast update to connected clients
-    broadcast({ type: "images", leftImage: leftUrl, rightImage: rightUrl });
-
-    res.json({
-      leftImage: leftUrl,
-      rightImage: rightUrl,
-      message: "Files uploaded successfully",
-    });
-  }
-);
+  res.json({
+    leftImage: leftUrl,
+    rightImage: rightUrl,
+    message: "Images uploaded successfully",
+  });
+};
 
 const storageVideo = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -116,67 +117,53 @@ const uploadVideo = multer({
   limits: { fileSize: 500 * 1024 * 1024 }, // 500MB max
 });
 
-// ---- UPLOAD VIDEO ----
+export const uploadVideoMiddleware = upload.single("video");
+
 //@desc upload video
 //@route POST /admin/upload-video
 //@access Private
-export const addVideo = asyncHandler(
-  async,
-  uploadVideo.single("video"),
-  (req, res) => {
-    if (!req.file)
-      return res.status(400).json({ message: "No video file provided" });
+export const addVideo = async (req, res) => {
+  if (!req.file)
+    return res.status(400).json({ message: "No video file provided" });
 
-    const videoUrl = `http://localhost:3000/video/${req.file.filename}`;
+  const videoUrl = `http://localhost:3000/video/${req.file.filename}`;
 
-    currentState.videoUrl = videoUrl;
+  currentState.videoUrl = videoUrl;
 
-    // Broadcast update
-    broadcast({ type: "video", videoUrl });
+  broadcast({ type: "video", videoUrl });
 
-    res.json({ message: "Video uploaded successfully", videoUrl });
-  }
-);
+  res.json({ message: "Video uploaded successfully", videoUrl });
+};
 
-// ---- UPDATE NOTICES ----
 //@desc update notices
 //@route POST /admin/update-notices
 //@access Private
-export const updateNotices = asyncHandler(async (req, res) => {
+export const updateNotices = async (req, res) => {
   const noticesArray = req.body;
 
-  // Update current state
   currentState.notices = noticesArray;
 
-  // Save to file
-
-  // Broadcast update
   broadcast({ type: "notices", notices: noticesArray });
 
   res.json({ message: "Notices updated", notices: noticesArray });
-});
+};
 
-// ---- UPDATE DESCRIPTION ----
 //@desc update description
 //@route POST /update-description
 //@access Private
-export const updateDescription = asyncHandler(async (req, res) => {
+export const updateDescription = async (req, res) => {
   const { description } = req.body;
 
   if (description === undefined) {
     return res.status(400).json({ message: "Description is required" });
   }
 
-  // Update current state
   currentState.description = description || "";
 
-  // Broadcast update
   broadcast({ type: "description", description: currentState.description });
 
   res.json({
     message: "Description updated successfully",
     description: currentState.description,
   });
-});
-
-
+};

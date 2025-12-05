@@ -1,7 +1,7 @@
 // backend/server.js
 import cors from "cors";
 import express from "express";
-import eventsRouter from "./routes/admin.js";
+import adminRoutes from "./routes/adminRoutes.js";
 
 const app = express();
 app.use(
@@ -13,7 +13,7 @@ app.use(
 );
 app.use(express.json());
 
-app.use("/api", eventsRouter);
+app.use("/api", adminRoutes);
 app.use("/images", express.static("media/images"));
 app.use("/video", express.static("media/video"));
 
