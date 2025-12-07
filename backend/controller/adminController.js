@@ -1,4 +1,5 @@
 import multer from "multer";
+import { type } from "os";
 import path from "path";
 
 let clients = [];
@@ -10,25 +11,22 @@ let currentState = {
     rightTop: [],
     rightBottom: [],
   },
-  videoUrl: null,
+  videoUrl: [],
   notices: [],
   description: "",
 };
 
 export const serverSentEvent = async (req, res) => {
-  res.setHeader("Access-Control-Allow-Origin", "http://localhost:5173"); 
-  res.setHeader("Access-Control-Allow-Credentials", "true");
   res.setHeader("Content-Type", "text/event-stream");
   res.setHeader("Cache-Control", "no-cache");
   res.setHeader("Connection", "keep-alive");
-
   res.flushHeaders();
 
-  clients.push(res);
+  res.write(`data: ${JSON.stringify({ message: "connected" })}\n\n`);
 
+  clients.push(res);
   req.on("close", () => {
     clients = clients.filter((c) => c !== res);
-    res.end();
   });
 };
 
@@ -66,7 +64,8 @@ const storage = multer.diskStorage({
   },
   filename: (req, file, cb) => {
     const ext = path.extname(file.originalname);
-    cb(null, file.fieldname + ext);
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    cb(null, file.fieldname + "-" + uniqueSuffix + ext);
   },
 });
 
@@ -121,7 +120,8 @@ const storageVideo = multer.diskStorage({
   },
   filename: (req, file, cb) => {
     const ext = path.extname(file.originalname);
-    cb(null, file.fieldname + ext);
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    cb(null, file.fieldname + "-" + uniqueSuffix + ext);
   },
 });
 
@@ -140,6 +140,7 @@ export const addVideo = async (req, res) => {
     return res.status(400).json({ message: "No video file provided" });
 
   const videoUrl = `http://localhost:3000/video/${req.file.filename}`;
+  currentState.videoUrl.push(videoUrl);
 
   currentState.videoUrl = videoUrl;
 
@@ -187,4 +188,15 @@ export const updateDescription = async (req, res) => {
 
 export const getAllImages = async (req, res) => {
   res.json({ images: currentState.images });
+};
+//@desc deleteImage
+//@route GET /all-images
+//@access Private
+
+export const deleteImage = async (req, res) => {
+  const { key, url } = req.body;
+
+  currentState.images = currentState.images.key.filter((img) => img !== url);
+  broadcast({ type: "images", images: currentState.images });
+  res.json({ message: "Image deleted", images: currentState.images });
 };
