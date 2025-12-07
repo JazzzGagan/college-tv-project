@@ -15,7 +15,7 @@ import { Router } from "express";
 const router = Router();
 
 router.get("/current-state", sendState);
-router.post("/events", serverSentEvent);
+router.get("/events", serverSentEvent);
 router.post("/login", loginAdmin);
 router.post("/upload", uploadImageMiddleWare, uploadImage);
 router.post("/upload-video", uploadVideoMiddleware, addVideo);

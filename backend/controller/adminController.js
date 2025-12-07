@@ -22,6 +22,8 @@ export const serverSentEvent = async (req, res) => {
   res.setHeader("Connection", "keep-alive");
   res.flushHeaders();
 
+  res.write(`data: ${JSON.stringify({ message: "connected" })}\n\n`);
+
   clients.push(res);
   req.on("close", () => {
     clients = clients.filter((c) => c !== res);
