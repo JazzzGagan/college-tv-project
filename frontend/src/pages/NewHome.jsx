@@ -121,10 +121,22 @@ const NewHome = () => {
         const data = await res.json();
         console.log("amges at Home", data);
 
-        setLeftTop(data.images.leftTop || DEFAULT_LEFT_IMAGE);
-        setLeftBottom(data.images.leftBottom || DEFAULT_RIGHT_IMAGE);
-        setRightTop(data.images.leftTop || DEFAULT_LEFT_IMAGE);
-        setRightBottom(data.images.leftBottom || DEFAULT_RIGHT_IMAGE);
+        setLeftTop(
+          data.images.leftTop[data.images.leftTop.length - 1] ||
+            DEFAULT_LEFT_IMAGE
+        );
+        setLeftBottom(
+          data.images.leftBottom[data.images.leftBottom.length - 1] ||
+            DEFAULT_RIGHT_IMAGE
+        );
+        setRightTop(
+          data.images.rightTop[data.images.rightTop.length - 1] ||
+            DEFAULT_LEFT_IMAGE
+        );
+        setRightBottom(
+          data.images.rightBottom[data.images.rightBottom.length - 1] ||
+            DEFAULT_RIGHT_IMAGE
+        );
         setVideoUrl(data.videoUrl);
         setNotices(
           data.notices && data.notices.length > 0
@@ -146,16 +158,26 @@ const NewHome = () => {
       switch (data.type) {
         case "images":
           setLeftTop(
-            (data.images.leftTop || DEFAULT_LEFT_IMAGE) + "?t=" + Date.now()
+            (data.images.leftTop[data.images.leftTop.length - 1] ||
+              DEFAULT_LEFT_IMAGE) +
+              "?t=" +
+              Date.now()
           );
           setLeftBottom(
-            (data.images.leftBottom || DEFAULT_RIGHT_IMAGE) + "?t=" + Date.now()
+            (data.images.leftBottom[data.images.leftBottom.length - 1] ||
+              DEFAULT_RIGHT_IMAGE) +
+              "?t=" +
+              Date.now()
           );
           setRightTop(
-            (data.images.rightTop || DEFAULT_RIGHT_IMAGE) + "?t=" + Date.now()
+            (data.images.rightTop[data.images.rightTop.length - 1] ||
+              DEFAULT_LEFT_IMAGE) +
+              "?t=" +
+              Date.now()
           );
           setRightBottom(
-            (data.images.rightBottom || DEFAULT_RIGHT_IMAGE) +
+            (data.images.rightBottom[data.images.rightBottom.length - 1] ||
+              DEFAULT_RIGHT_IMAGE) +
               "?t=" +
               Date.now()
           );
