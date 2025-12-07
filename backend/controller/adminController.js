@@ -4,21 +4,31 @@ import path from "path";
 let clients = [];
 
 let currentState = {
-  leftImage: null,
-  rightImage: null,
+  images: {
+    leftTop: [],
+    leftBottom: [],
+    rightTop: [],
+    rightBottom: [],
+  },
   videoUrl: null,
   notices: [],
+  description: "",
 };
 
 export const serverSentEvent = async (req, res) => {
+  res.setHeader("Access-Control-Allow-Origin", "http://localhost:5173"); 
+  res.setHeader("Access-Control-Allow-Credentials", "true");
   res.setHeader("Content-Type", "text/event-stream");
   res.setHeader("Cache-Control", "no-cache");
   res.setHeader("Connection", "keep-alive");
+
   res.flushHeaders();
 
   clients.push(res);
+
   req.on("close", () => {
     clients = clients.filter((c) => c !== res);
+    res.end();
   });
 };
 
@@ -60,44 +70,47 @@ const storage = multer.diskStorage({
   },
 });
 
-const upload = multer({ storage });
-export const uploadImageMiddleWare = upload.fields([
-  {
-    name: "left",
-    maxCount: 1,
-  },
-  { name: "right", maxCount: 1 },
+export const uploadImageMiddleWare = multer({ storage }).fields([
+  { name: "leftTop", maxCount: 1 },
+  { name: "leftBottom", maxCount: 1 },
+  { name: "rightTop", maxCount: 1 },
+  { name: "rightBottom", maxCount: 1 },
 ]);
 
 //@desc upload left and right images
 //@route POST /admin/upload
 //@access Private
 export const uploadImage = async (req, res) => {
-  const leftFile = req.files?.left?.[0];
-  const rightFile = req.files?.right?.[0];
+  const { leftTop, leftBottom, rightTop, rightBottom } = req.files || {};
+  console.log(req.files);
 
-  const leftUrl = leftFile
-    ? `http://localhost:3000/images/${leftFile.filename}`
-    : currentState.leftImage;
+  if (leftTop) {
+    const url = `http://localhost:3000/images/${leftTop[0].filename}`;
+    currentState.images.leftTop.push(url);
+  }
 
-  const rightUrl = rightFile
-    ? `http://localhost:3000/images/${rightFile.filename}`
-    : currentState.rightImage;
+  if (leftBottom) {
+    const url = `http://localhost:3000/images/${leftBottom[0].filename}`;
+    currentState.images.leftBottom.push(url);
+  }
 
-  // Update global state
-  currentState.leftImage = leftUrl;
-  currentState.rightImage = rightUrl;
+  if (rightTop) {
+    const url = `http://localhost:3000/images/${rightTop[0].filename}`;
+    currentState.images.rightTop.push(url);
+  }
+  if (rightBottom) {
+    const url = `http://localhost:3000/images/${rightBottom[0].filename}`;
+    currentState.images.rightBottom.push(url);
+  }
 
   // Broadcast update to clients (SSE)
   broadcast({
     type: "images",
-    leftImage: leftUrl,
-    rightImage: rightUrl,
+    images: currentState.images,
   });
 
   res.json({
-    leftImage: leftUrl,
-    rightImage: rightUrl,
+    images: currentState.images,
     message: "Images uploaded successfully",
   });
 };
@@ -117,7 +130,7 @@ const uploadVideo = multer({
   limits: { fileSize: 500 * 1024 * 1024 }, // 500MB max
 });
 
-export const uploadVideoMiddleware = upload.single("video");
+export const uploadVideoMiddleware = uploadVideo.single("video");
 
 //@desc upload video
 //@route POST /admin/upload-video
@@ -166,4 +179,12 @@ export const updateDescription = async (req, res) => {
     message: "Description updated successfully",
     description: currentState.description,
   });
+};
+
+//@desc get all images
+//@route GET /all-images
+//@access Private
+
+export const getAllImages = async (req, res) => {
+  res.json({ images: currentState.images });
 };
