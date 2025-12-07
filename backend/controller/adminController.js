@@ -1,4 +1,5 @@
 import multer from "multer";
+import { type } from "os";
 import path from "path";
 
 let clients = [];
@@ -61,7 +62,8 @@ const storage = multer.diskStorage({
   },
   filename: (req, file, cb) => {
     const ext = path.extname(file.originalname);
-    cb(null, file.fieldname + ext);
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    cb(null, file.fieldname + "-" + uniqueSuffix + ext);
   },
 });
 
@@ -182,4 +184,15 @@ export const updateDescription = async (req, res) => {
 
 export const getAllImages = async (req, res) => {
   res.json({ images: currentState.images });
+};
+//@desc deleteImage
+//@route GET /all-images
+//@access Private
+
+export const deleteImage = async (req, res) => {
+  const { key, url } = req.body;
+
+  currentState.images = currentState.images.key.filter((img) => img !== url);
+  broadcast({ type: "images", images: currentState.images });
+  res.json({ message: "Image deleted", images: currentState.images });
 };
