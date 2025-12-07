@@ -25,7 +25,7 @@ app.use("/video", express.static("media/video"));
 //       currentState: "/api/current-state",
 //       events: "/api/events",
 //       upload: "/api/upload",
-//       uploadVideo: "/api/upload-video",
+//       uploadVideo: "/api/upload-video",\
 //       updateNotices: "/api/update-notices",
 //       updateDescription: "/api/update-description",
 //       login: "/api/login",
