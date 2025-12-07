@@ -1,150 +1,150 @@
-import React, { useState, } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 
 const NoticeManager = () => {
   const [notices, setNotices] = useState([]);
   const [newNoticeText, setNewNoticeText] = useState("");
+  const [editIndex, setEditIndex] = useState(null);
 
-  // Fetch existing notices from backend
-  // useEffect(() => {
-  //   const fetchNotices = async () => {
-  //     try {
-  //       const res = await fetch("http://localhost:5000/notices");
-  //       const data = await res.json();
-  //       setNotices(data || []);
-  //     } catch (err) {
-  //       console.error("Failed to fetch notices:", err);
-  //     }
-  //   };
-  //   fetchNotices();
-  // }, []);
+  // message UI state
+  const [message, setMessage] = useState({ type: "", text: "" });
 
-  // Add a new notice
+  const showMessage = (type, text) => {
+    setMessage({ type, text });
+    setTimeout(() => setMessage({ type: "", text: "" }), 2000);
+  };
+
+  useEffect(() => {
+    const fetchNotices = async () => {
+      try {
+        const res = await axios.get("http://localhost:3000/api/notices");
+        setNotices(res.data || []);
+      } catch {
+        showMessage("error", "Failed to load notices");
+      }
+    };
+    fetchNotices();
+  }, []);
+
   const addNotice = () => {
     if (!newNoticeText.trim()) {
-      alert("Notice cannot be empty!");
+      showMessage("error", "Empty not allowed");
       return;
     }
-    setNotices((prev) => [
-      ...prev,
-      { id: `temp-${Date.now()}`, text: newNoticeText },
-    ]);
-    setNewNoticeText(""); // clear input
+
+    setNotices([...notices, { id: Date.now(), text: newNoticeText }]);
+    setNewNoticeText("");
+    showMessage("success", "Notice added");
   };
 
-  // Edit existing notice locally
-  const editNotice = (index) => {
-    const current = notices[index]?.text ?? "";
-    const updatedText = prompt("Update notice:", current);
-    if (updatedText == null) return;
-    if (updatedText.trim() === "") return alert("Notice cannot be empty.");
-    const copy = [...notices];
-    copy[index].text = updatedText;
-    setNotices(copy);
-  };
-
-  // Delete notice locally
-  const deleteNotice = (index) => {
-    setNotices((prev) => prev.filter((_, i) => i !== index));
-  };
-
-  // Save all notices to backend
   const saveChanges = async () => {
     try {
-      const res = await fetch("http://localhost:3000/api/update-notices", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(notices),
-      });
-      const data = await res.json();
-      console.log(data);
-
-      alert("All notices saved!");
-    } catch (err) {
-      console.error("Failed to save notices:", err);
-      alert("Failed to save notices.");
+      await axios.post("http://localhost:3000/api/update-notices", notices);
+      showMessage("success", "Notices upload successfully!");
+    } catch {
+      showMessage("error", "Save failed!");
     }
+  };
+
+  const deleteNotice = async (id) => {
+    try {
+      await axios.delete(`http://localhost:3000/api/delete-notice/${id}`);
+      setNotices((prev) => prev.filter((n) => n.id !== id));
+      showMessage("success", "Notice deleted");
+    } catch {
+      showMessage("error", "Delete failed!");
+    }
+  };
+
+  const editNotice = (index) => {
+    setEditIndex(index);
+    setNewNoticeText(notices[index].text);
+  };
+
+  const updateNotice = () => {
+    const updated = [...notices];
+    updated[editIndex].text = newNoticeText;
+    setNotices(updated);
+
+    setEditIndex(null);
+    setNewNoticeText("");
+
+    showMessage("success", "Notice updated");
   };
 
   return (
     <section className="tab-content">
-      <div className="flex justify-between items-center mb-6 pb-4 border-b border-gray-200">
-        <div>
-          <h2 className="text-3xl font-bold text-red-600 mb-1">
-            Notice Management
-          </h2>
-          <p className="text-sm text-gray-500">
-            Manage scrolling notices for the TV screen
-          </p>
+      {/* MESSAGE BOX */}
+      {message.text && (
+        <div
+          className={`p-3 mb-4 rounded-lg text-white text-center ${
+            message.type === "error" ? "bg-red-500" : "bg-green-600"
+          }`}
+        >
+          {message.text}
         </div>
+      )}
+
+      <div className="flex justify-between items-center mb-6 border-b pb-4">
+        <h2 className="text-3xl font-bold text-red-600">Notice Management</h2>
 
         <button
           onClick={saveChanges}
-          className="bg-blue-600 text-white px-6 py-2.5 rounded-lg hover:bg-blue-700 transition-all duration-200 shadow-md hover:shadow-lg font-semibold transform hover:scale-105"
+          className="bg-blue-600 text-white px-6 py-2 rounded-lg"
         >
           💾 Save Changes
         </button>
       </div>
 
-      {/* Notice list */}
-      <div className="space-y-3 mb-6">
-        {notices.length > 0 ? (
-          notices.map((notice, i) => (
-            <div
-              key={notice.id}
-              className="flex justify-between items-center bg-orange-50 border-l-4 border-red-600 p-4 rounded-lg shadow-sm hover:shadow-md transition-all duration-200"
-            >
-              <span className="text-gray-700 font-medium flex-1 pr-4">
-                {notice.text}
-              </span>
+      <div className="space-y-3">
+        {notices.map((n, i) => (
+          <div
+            key={n.id}
+            className="bg-orange-50 border-l-4 border-red-600 p-4 flex justify-between rounded-lg"
+          >
+            <span>{n.text}</span>
 
-              <div className="flex gap-3">
-                <button
-                  onClick={() => editNotice(i)}
-                  className="text-blue-600 font-semibold text-sm hover:text-blue-700 hover:underline transition-colors px-2 py-1 rounded hover:bg-blue-50"
-                >
-                  Edit
-                </button>
+            <div className="flex gap-3">
+              <button onClick={() => editNotice(i)} className="text-blue-600">
+                Edit
+              </button>
 
-                <button
-                  onClick={() => deleteNotice(i)}
-                  className="text-red-600 font-semibold text-sm hover:text-red-700 hover:underline transition-colors px-2 py-1 rounded hover:bg-red-50"
-                >
-                  Delete
-                </button>
-              </div>
+              <button
+                onClick={() => deleteNotice(n.id)}
+                className="text-red-600"
+              >
+                Delete
+              </button>
             </div>
-          ))
-        ) : (
-          <div className="bg-gray-50 border-2 border-dashed border-gray-300 p-6 rounded-lg text-center">
-            <p className="text-gray-500 text-sm italic">
-              No notices added yet. Add one below.
-            </p>
           </div>
-        )}
+        ))}
       </div>
 
-      {/* Add new notice input */}
-      <div className="mt-6 p-5 bg-gray-50 rounded-lg border border-gray-200">
-        <label className="block text-sm font-semibold text-gray-700 mb-3">
-          Add New Notice
-        </label>
-        <div className="flex gap-3">
-          <input
-            type="text"
-            placeholder="Enter notice text..."
-            value={newNoticeText}
-            onChange={(e) => setNewNoticeText(e.target.value)}
-            onKeyPress={(e) => e.key === "Enter" && addNotice()}
-            className="flex-1 border-2 border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all duration-200 shadow-sm"
-          />
+      {/* INPUT FOR ADD/EDIT */}
+      <div className="mt-6 bg-gray-50 p-4 rounded-lg">
+        <input
+          type="text"
+          value={newNoticeText}
+          onChange={(e) => setNewNoticeText(e.target.value)}
+          className="border p-2 rounded w-full mb-3"
+          placeholder="Write notice here..."
+        />
 
+        {editIndex !== null ? (
+          <button
+            onClick={updateNotice}
+            className="bg-blue-600 text-white px-6 py-2 rounded-lg"
+          >
+            Update Notice
+          </button>
+        ) : (
           <button
             onClick={addNotice}
-            className="bg-red-600 text-white px-6 py-2.5 rounded-lg hover:bg-red-700 text-sm font-semibold transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105"
+            className="bg-red-600 text-white px-6 py-2 rounded-lg"
           >
             Add Notice
           </button>
-        </div>
+        )}
       </div>
     </section>
   );

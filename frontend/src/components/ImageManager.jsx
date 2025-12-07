@@ -2,7 +2,6 @@ import axios from "axios";
 import React, { useState, useEffect } from "react";
 
 const ImageManager = () => {
-  // Use backend keys for state keys: leftTop, leftBottom, rightTop, rightBottom
   const [images, setImages] = useState({
     leftTop: null,
     leftBottom: null,
@@ -10,14 +9,23 @@ const ImageManager = () => {
     rightBottom: null,
   });
 
-  //Fetch current images from backend on component mount
+  // Message state for success/error messages
+  const [message, setMessage] = useState({ type: "", text: "" });
+
+  // Show message with type (success or error)
+  const showMessage = (type, text) => {
+    setMessage({ type, text });
+    setTimeout(() => setMessage({ type: "", text: "" }), 3000);
+  };
+
+  // Fetch current images from backend on component mount
   useEffect(() => {
     const fetchImages = async () => {
       try {
         const res = await axios.get("http://localhost:3000/api/all-images");
         const data = res.data;
 
-        console.log("test", res.data);
+        console.log("Fetched images:", data);
 
         setImages({
           leftTop: data.images.leftTop[data.images.leftTop.length - 1] || null,
@@ -29,14 +37,15 @@ const ImageManager = () => {
             data.images.rightBottom[data.images.rightBottom.length - 1] || null,
         });
       } catch (err) {
-        console.error("Failed to load images", err);
+        showMessage("error", "Failed to load images");
+        console.error(err);
       }
     };
 
     fetchImages();
   }, []);
 
-  // Handle file input changes
+  // Handle file input change
   const handleFileChange = (key, file) => {
     setImages((prev) => ({
       ...prev,
@@ -44,14 +53,12 @@ const ImageManager = () => {
     }));
   };
 
-  // Save all images to backend
+  // Save updated images to backend
   const handleSave = async () => {
     const formData = new FormData();
 
     Object.entries(images).forEach(([key, file]) => {
-      // Only append if file is a File object (not a string URL)
       if (file && typeof file !== "string") {
-        console.log("Appending field:", key, file);
         formData.append(key, file);
       }
     });
@@ -64,10 +71,11 @@ const ImageManager = () => {
           headers: { "Content-Type": "multipart/form-data" },
         }
       );
-      alert("Images uploaded successfully!");
 
+      showMessage("success", " Images uploaded successfully!");
       const data = res.data;
-      console.log("response", res.data);
+
+      // Update images state with latest returned images
       setImages({
         leftTop: data.images.leftTop[data.images.leftTop.length - 1] || null,
         leftBottom:
@@ -77,18 +85,32 @@ const ImageManager = () => {
           data.images.rightBottom[data.images.rightBottom.length - 1] || null,
       });
     } catch (err) {
-      console.error("Upload failed:", err);
-      alert("Failed to upload images.");
+      showMessage("error", "Upload failed");
+      console.error(err);
     }
   };
 
-  console.log("outside", images);
+  // Delete an image by key
+  const handleDelete = async (key) => {
+    try {
+      await axios.delete(`http://localhost:3000/api/image/${key}`);
 
-  // Render a single image box with preview, upload, and delete buttons
+      setImages((prev) => ({
+        ...prev,
+        [key]: null,
+      }));
+
+      showMessage("success", "Image deleted successfully!");
+    } catch (err) {
+      showMessage("error", "Failed to delete image");
+      console.error(err);
+    }
+  };
+
+  // Render single image upload/delete box
   const renderImageBox = (label, key) => {
     const file = images[key];
 
-    // Preview URL: If string, assume URL from backend; else createObjectURL for File object
     const preview =
       file && typeof file === "string"
         ? file
@@ -100,31 +122,23 @@ const ImageManager = () => {
       <div className="border-2 border-gray-300 rounded-xl p-6 text-center w-full bg-white shadow-md hover:shadow-lg transition-all duration-200">
         <h3 className="text-lg font-semibold mb-4 text-gray-700">{label}</h3>
 
-        <div className="w-full h-56 sm:h-64 md:h-72 flex items-center justify-center text-gray-400 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50">
+        <div className="w-full h-56 flex items-center justify-center border-2 border-dashed border-gray-300 rounded-lg bg-gray-50">
           {preview ? (
             <img
               src={preview}
               alt={label}
               className="w-full h-full object-cover rounded-lg"
               onLoad={() => {
-                // Revoke object URL after image loads to free memory
                 if (typeof file !== "string") URL.revokeObjectURL(preview);
               }}
             />
           ) : (
-            <div className="flex flex-col items-center">
-              <img
-                src="https://cdn-icons-png.flaticon.com/512/685/685655.png"
-                alt="placeholder"
-                className="w-12 opacity-40 mb-2"
-              />
-              <p className="mt-1 text-sm text-gray-500">No image uploaded</p>
-            </div>
+            <p className="text-gray-500">No image uploaded</p>
           )}
         </div>
 
         <div className="mt-4 flex flex-col sm:flex-row justify-center gap-2">
-          <label className="cursor-pointer bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700 transition-all duration-200 shadow-sm hover:shadow-md font-medium">
+          <label className="cursor-pointer bg-blue-600 text-white px-4 py-2 rounded-lg">
             Upload
             <input
               type="file"
@@ -140,8 +154,8 @@ const ImageManager = () => {
 
           {preview && (
             <button
-              onClick={() => handleFileChange(key, null)}
-              className="bg-red-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-red-700 transition-all duration-200 shadow-sm hover:shadow-md font-medium"
+              onClick={() => handleDelete(key)}
+              className="bg-red-600 text-white px-4 py-2 rounded-lg"
             >
               Delete
             </button>
@@ -153,19 +167,30 @@ const ImageManager = () => {
 
   return (
     <section className="tab-content">
+      {/* Global message */}
+      {message.text && (
+        <div
+          className={`mb-4 p-2 rounded-lg text-white text-center font-semibold ${
+            message.type === "error" ? "bg-red-600" : "bg-green-600"
+          }`}
+        >
+          {message.text}
+        </div>
+      )}
+
       <div className="flex justify-between items-center mb-6 pb-4 border-b border-gray-200">
         <div>
           <h2 className="text-3xl font-bold text-red-600 mb-1">
             Image Management
           </h2>
           <p className="text-sm text-gray-500">
-            Upload and manage left and right side images (Top & Bottom)
+            Upload and manage left and right side images
           </p>
         </div>
 
         <button
           onClick={handleSave}
-          className="bg-blue-600 text-white px-6 py-2.5 rounded-lg hover:bg-blue-700 transition-all duration-200 shadow-md hover:shadow-lg font-semibold transform hover:scale-105"
+          className="bg-blue-600 text-white px-6 py-2.5 rounded-lg hover:bg-blue-700 transition"
         >
           💾 Save Changes
         </button>
