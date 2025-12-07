@@ -11,7 +11,7 @@ let currentState = {
     rightTop: [],
     rightBottom: [],
   },
-  videoUrl: null,
+  videoUrl: [],
   notices: [],
   description: "",
 };
@@ -120,7 +120,8 @@ const storageVideo = multer.diskStorage({
   },
   filename: (req, file, cb) => {
     const ext = path.extname(file.originalname);
-    cb(null, file.fieldname + ext);
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    cb(null, file.fieldname + "-" + uniqueSuffix + ext);
   },
 });
 
@@ -139,6 +140,7 @@ export const addVideo = async (req, res) => {
     return res.status(400).json({ message: "No video file provided" });
 
   const videoUrl = `http://localhost:3000/video/${req.file.filename}`;
+  currentState.videoUrl.push(videoUrl);
 
   currentState.videoUrl = videoUrl;
 
