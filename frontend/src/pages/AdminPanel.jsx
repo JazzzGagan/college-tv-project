@@ -6,15 +6,19 @@ import DescriptionManager from "../components/DescriptionManager";
 import NoticeManager from "../components/NoticeManager";
 import EventsNewsManager from "../components/EventsNewsManager";
 
-
 const AdminPanel = () => {
-  const [activeTab, setActiveTab] = useState("images");
+  const [activeTab, setActiveTab] = useState(() => {
+    return localStorage.getItem("activeTab") || "images";
+  });
 
-  console.log("Admin Panel Loaded");
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    localStorage.setItem("activeTab", tab);
+  };
 
   return (
     <div className="flex min-h-screen bg-gray-100">
-      <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
+      <Sidebar activeTab={activeTab} setActiveTab={handleTabChange} />
       <main className="flex-1 p-8 bg-white shadow-xl m-6 rounded-lg overflow-auto">
         <div className="max-w-7xl mx-auto">
           {activeTab === "images" && <ImageManager />}
