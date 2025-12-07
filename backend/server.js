@@ -1,42 +1,37 @@
 // backend/server.js
-const express = require("express");
-const path = require("path");
-const fs = require("fs");
-const multer = require("multer");
-const cors = require("cors");
+import cors from "cors";
+import express from "express";
+import adminRoutes from "./routes/adminRoutes.js";
 
 const app = express();
-app.use(cors());
+app.use(
+  cors({
+    origin: ["http://localhost:5173"],
+    methods: ["GET", "POST"],
+    credentials: true,
+  })
+);
 app.use(express.json());
 
-// Serve media
-app.use("/videos", express.static(path.join(__dirname, "media/videos")));
-app.use("/images", express.static(path.join(__dirname, "media/images")));
+app.use("/api", adminRoutes);
+app.use("/images", express.static("media/images"));
+app.use("/video", express.static("media/video"));
 
-// Notices API
-app.get("/api/notices", (req, res) => {
-  const notices = JSON.parse(fs.readFileSync("./notices.json"));
-  res.json(notices);
-});
-
-// File upload for admin
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const folder = file.fieldname === "video" ? "videos" : "images";
-    cb(null, path.join(__dirname, "media", folder));
-  },
-  filename: (req, file, cb) => cb(null, file.originalname),
-});
-const upload = multer({ storage });
-
-app.post("/admin/upload", upload.single("file"), (req, res) => {
-  res.json({ message: "File uploaded successfully" });
-});
-
-app.post("/admin/notices", (req, res) => {
-  fs.writeFileSync("./notices.json", JSON.stringify(req.body.notices, null, 2));
-  res.json({ message: "Notices updated successfully" });
-});
+// Root route
+// app.get("/", (req, res) => {
+//   res.json({
+//     message: "TV Content API Server",
+//     endpoints: {
+//       currentState: "/api/current-state",
+//       events: "/api/events",
+//       upload: "/api/upload",
+//       uploadVideo: "/api/upload-video",
+//       updateNotices: "/api/update-notices",
+//       updateDescription: "/api/update-description",
+//       login: "/api/login",
+//     },
+//   });
+// });
 
 const PORT = 3000;
 app.listen(PORT, () =>

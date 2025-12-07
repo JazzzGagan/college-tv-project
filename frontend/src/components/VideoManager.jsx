@@ -1,116 +1,176 @@
+import axios from "axios";
 import React, { useState, useEffect } from "react";
 
 const VideoManager = () => {
-  const [videos, setVideos] = useState([]);
+  const [selectedVideo, setSelectedVideo] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState("");
+  const [uploadProgress, setUploadProgress] = useState(0);
+
+  // message state as { type, text }
+  const [message, setMessage] = useState({ type: "", text: "" });
+
+  // showMessage accepts type and text
+  const showMessage = (type, text) => {
+    setMessage({ type, text });
+    setTimeout(() => setMessage({ type: "", text: "" }), 3000);
+  };
 
   useEffect(() => {
-    const fetchVideos = async () => {
+    const fetchVideo = async () => {
       try {
-        const res = await fetch("http://localhost:5000/uploads/videos");
-        const data = await res.json();
-        const savedVideos = data.map((v) => ({ file: null, preview: v.url }));
-        setVideos(savedVideos);
+        const res = await axios.get("http://localhost:3000/api/video");
+        if (res.data?.videoUrl) {
+          setPreviewUrl(res.data.videoUrl);
+        }
       } catch (err) {
-        console.error("Failed to load videos", err);
+        console.error("Failed to fetch video", err);
+        showMessage("error", "Failed to load video");
       }
     };
-    fetchVideos();
+    fetchVideo();
   }, []);
 
-  // Handle new file uploads
-  const handleUpload = (e) => {
-    const uploadedFiles = Array.from(e.target.files);
-    const newVideos = uploadedFiles.map((file) => ({
-      file,
-      preview: URL.createObjectURL(file),
-    }));
-    setVideos((prev) => [...prev, ...newVideos]);
-  };
+  const handleUpload = async () => {
+    if (!selectedVideo) {
+      showMessage("error", " No video selected");
+      return;
+    }
 
-  // Delete video from state
-  const handleDelete = (index) => {
-    setVideos(videos.filter((_, i) => i !== index));
-  };
+    const formData = new FormData();
+    formData.append("video", selectedVideo);
 
-  // Save new videos to backend
-  const handleSave = async () => {
     try {
-      for (const videoObj of videos) {
-        if (!videoObj.file) continue;
+      const res = await axios.post(
+        "http://localhost:3000/api/upload-video",
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+          onUploadProgress: (e) => {
+            const percent = Math.round((e.loaded * 100) / e.total);
+            setUploadProgress(percent);
+          },
+        }
+      );
 
-        const formData = new FormData();
-        formData.append("file", videoObj.file);
-        formData.append("title", "Main Video");
-        const res = await fetch("http://localhost:5000/uploads", {
-          method: "POST",
-          body: formData,
-        });
+      setPreviewUrl(res.data.videoUrl);
+      setSelectedVideo(null);
+      setUploadProgress(0);
 
-        const data = await res.json();
-        console.log("Uploaded:", data);
-        videoObj.preview = data.url;
-        videoObj.file = null;
-      }
-
-      setVideos([...videos]);
-      alert("Videos uploaded successfully!");
+      showMessage("success", "✅ Video uploaded successfully!");
     } catch (err) {
-      console.error("Upload error:", err);
-      alert("Failed to upload videos.");
+      console.error(err);
+      showMessage("error", "Upload failed!");
+      setUploadProgress(0);
+    }
+  };
+
+  const handleDelete = async () => {
+    try {
+      await axios.delete("http://localhost:3000/api/video");
+
+      setPreviewUrl("");
+      setSelectedVideo(null);
+
+      showMessage("success", " Video deleted successfully!");
+    } catch (err) {
+      console.error(err);
+      showMessage("error", "Failed to delete video");
     }
   };
 
   return (
     <section className="tab-content">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-bold text-orange-600">Video Manager</h2>
-
-        <button
-          onClick={handleSave}
-          className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"
+      {/* Global message bar with dynamic bg */}
+      {message.text && (
+        <div
+          className={`mb-4 p-2 rounded-lg text-white text-center ${
+            message.type === "error" ? "bg-red-500" : "bg-green-600"
+          }`}
         >
-          Save Changes
-        </button>
+          {message.text}
+        </div>
+      )}
+
+      <div className="flex justify-between items-center mb-6 pb-4 border-b border-gray-200">
+        <div>
+          <h2 className="text-3xl font-bold text-red-600 mb-1">
+            Video Management
+          </h2>
+          <p className="text-sm text-gray-500">Upload and manage video content</p>
+        </div>
+
+        <div className="flex items-center gap-4">
+          {uploadProgress > 0 && (
+            <div className="flex flex-col items-end">
+              <div className="w-64 bg-gray-200 rounded-full h-2.5 shadow-inner">
+                <div
+                  className="bg-green-600 h-2.5 rounded-full transition-all duration-300 shadow-sm"
+                  style={{ width: `${uploadProgress}%` }}
+                ></div>
+              </div>
+              <span className="text-xs mt-1 text-gray-600 font-medium">
+                {uploadProgress}% uploaded
+              </span>
+            </div>
+          )}
+
+          <button
+            onClick={handleUpload}
+            className="bg-blue-600 text-white px-6 py-2.5 rounded-lg hover:bg-blue-700 shadow-md hover:shadow-lg font-semibold transform hover:scale-105"
+          >
+            💾 Save Changes
+          </button>
+        </div>
       </div>
 
-      <div className="mb-4">
+      {/* Choose file */}
+      <div className="mb-6">
         <input
           type="file"
           accept="video/*"
-          multiple
           id="videoUpload"
           className="hidden"
-          onChange={handleUpload}
+          onChange={(e) => setSelectedVideo(e.target.files[0])}
         />
 
         <label
           htmlFor="videoUpload"
-          className="bg-gray-500 text-white px-4 py-2 rounded cursor-pointer hover:bg-gray-700"
+          className="inline-block bg-gray-500 text-white px-5 py-2.5 rounded-lg cursor-pointer hover:bg-gray-600 shadow-md hover:shadow-lg font-medium"
         >
-          Choose Videos
+          📁 Choose Video
         </label>
       </div>
 
-      <div className="flex flex-col gap-4">
-        {videos.map((vid, index) => (
-          <div
-            key={index}
-            className="flex flex-col gap-3 bg-gray-100 p-3 rounded shadow"
-          >
-            <video
-              src={vid.preview}
-              controls
-              className="w-[950px] h-[450px] border rounded"
-            />
+      {/* Preview Section */}
+      {(selectedVideo || previewUrl) && (
+        <div className="flex flex-col gap-4 bg-gray-50 p-6 rounded-xl shadow-md border border-gray-200">
+          <video
+            src={selectedVideo ? URL.createObjectURL(selectedVideo) : previewUrl}
+            controls
+            className="w-full max-w-4xl h-auto border-2 border-gray-300 rounded-lg shadow-sm"
+          />
+
+          {/* Remove selected video */}
+          {selectedVideo && (
             <button
-              onClick={() => handleDelete(index)}
-              className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+              onClick={() => setSelectedVideo(null)}
+              className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 shadow-sm hover:shadow-md font-medium self-start"
             >
-              Delete
+              Remove Selected Video
             </button>
-          </div>
-        ))}
-      </div>
+          )}
+
+          {/* Delete backend video */}
+          {previewUrl && !selectedVideo && (
+            <button
+              onClick={handleDelete}
+              className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 shadow-sm hover:shadow-md font-medium self-start"
+            >
+              Delete Video
+            </button>
+          )}
+        </div>
+      )}
     </section>
   );
 };

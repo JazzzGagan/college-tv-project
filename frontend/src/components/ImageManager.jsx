@@ -1,62 +1,116 @@
+import axios from "axios";
 import React, { useState, useEffect } from "react";
 
 const ImageManager = () => {
   const [images, setImages] = useState({
-    "Left Side Image": null,
-    "Right Side Image": null,
+    leftTop: null,
+    leftBottom: null,
+    rightTop: null,
+    rightBottom: null,
   });
 
-  //Fetching exixting images from backend when components loads
+  // Message state for success/error messages
+  const [message, setMessage] = useState({ type: "", text: "" });
+
+  // Show message with type (success or error)
+  const showMessage = (type, text) => {
+    setMessage({ type, text });
+    setTimeout(() => setMessage({ type: "", text: "" }), 3000);
+  };
+
+  // Fetch current images from backend on component mount
   useEffect(() => {
     const fetchImages = async () => {
       try {
-        const res = await fetch("http://localhost:5000/uploads");
-        const data = await res.json();
+        const res = await axios.get("http://localhost:3000/api/all-images");
+        const data = res.data;
 
-        //Update state with URLs from backend
+        console.log("Fetched images:", data);
+
         setImages({
-          "Left Side Image": data.left || null,
-          "Right Side Image": data.right || null,
+          leftTop: data.images.leftTop[data.images.leftTop.length - 1] || null,
+          leftBottom:
+            data.images.leftBottom[data.images.leftBottom.length - 1] || null,
+          rightTop:
+            data.images.rightTop[data.images.rightTop.length - 1] || null,
+          rightBottom:
+            data.images.rightBottom[data.images.rightBottom.length - 1] || null,
         });
       } catch (err) {
-        console.error("Failed to load images", err);
+        showMessage("error", "Failed to load images");
+        console.error(err);
       }
     };
 
     fetchImages();
   }, []);
 
-  //update state when admin uploads or delete file
-  const handleFileChange = (title, file) => {
-    setImages((prev) => ({ ...prev, [title]: file }));
+  // Handle file input change
+  const handleFileChange = (key, file) => {
+    setImages((prev) => ({
+      ...prev,
+      [key]: file,
+    }));
   };
 
-  //save upload images to backend
+  // Save updated images to backend
   const handleSave = async () => {
-    try {
-      for (const [key, file] of Object.entries(images)) {
-        if (!file || typeof file === "string") continue;
+    const formData = new FormData();
 
-        const formData = new FormData();
-        formData.append("file", file);
-        formData.append("title", key);
-
-        const res = await fetch("http://localhost:5000/uploads", {
-          method: "POST",
-          body: formData,
-        });
-
-        await res.json();
+    Object.entries(images).forEach(([key, file]) => {
+      if (file && typeof file !== "string") {
+        formData.append(key, file);
       }
+    });
 
-      alert("Images uploaded successfully!");
+    try {
+      const res = await axios.post(
+        "http://localhost:3000/api/upload",
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
+
+      showMessage("success", " Images uploaded successfully!");
+      const data = res.data;
+
+      // Update images state with latest returned images
+      setImages({
+        leftTop: data.images.leftTop[data.images.leftTop.length - 1] || null,
+        leftBottom:
+          data.images.leftBottom[data.images.leftBottom.length - 1] || null,
+        rightTop: data.images.rightTop[data.images.rightTop.length - 1] || null,
+        rightBottom:
+          data.images.rightBottom[data.images.rightBottom.length - 1] || null,
+      });
     } catch (err) {
-      console.error("Upload error:", err);
-      alert("Failed to upload images.");
+      showMessage("error", "Upload failed");
+      console.error(err);
     }
   };
 
-  const renderImageBox = (title, file) => {
+  // Delete an image by key
+  const handleDelete = async (key) => {
+    try {
+      await axios.delete(`http://localhost:3000/api/image/${key}`);
+
+      setImages((prev) => ({
+        ...prev,
+        [key]: null,
+      }));
+
+      showMessage("success", "Image deleted successfully!");
+    } catch (err) {
+      showMessage("error", "Failed to delete image");
+      console.error(err);
+    }
+  };
+
+  // Render single image upload/delete box
+  const renderImageBox = (label, key) => {
+    const file = images[key];
+
     const preview =
       file && typeof file === "string"
         ? file
@@ -65,40 +119,43 @@ const ImageManager = () => {
         : null;
 
     return (
-      <div className="border-2 border-dashed rounded-xl p-4 text-center w-full">
-        <h3 className="text-base font-semibold mb-2">{title}</h3>
-        <div className="w-full h-56 sm:h-64 md:h-72 flex items-center justify-center text-gray-400 border">
+      <div className="border-2 border-gray-300 rounded-xl p-6 text-center w-full bg-white shadow-md hover:shadow-lg transition-all duration-200">
+        <h3 className="text-lg font-semibold mb-4 text-gray-700">{label}</h3>
+
+        <div className="w-full h-56 flex items-center justify-center border-2 border-dashed border-gray-300 rounded-lg bg-gray-50">
           {preview ? (
             <img
               src={preview}
-              className="w-full h-full object-cover rounded"
-              alt={title}
+              alt={label}
+              className="w-full h-full object-cover rounded-lg"
+              onLoad={() => {
+                if (typeof file !== "string") URL.revokeObjectURL(preview);
+              }}
             />
           ) : (
-            <div className="flex flex-col items-center">
-              <img
-                src="https://cdn-icons-png.flaticon.com/512/685/685655.png"
-                className="w-10 opacity-40"
-                alt="placeholder"
-              />
-              <p className="mt-1 text-sm">No image uploaded</p>
-            </div>
+            <p className="text-gray-500">No image uploaded</p>
           )}
         </div>
-        <div className="mt-3 flex flex-col sm:flex-row justify-center gap-2">
-          <label className="cursor-pointer bg-blue-600 text-white px-3 py-1.5 rounded text-sm hover:bg-blue-700">
+
+        <div className="mt-4 flex flex-col sm:flex-row justify-center gap-2">
+          <label className="cursor-pointer bg-blue-600 text-white px-4 py-2 rounded-lg">
             Upload
             <input
               type="file"
               accept="image/*"
               className="hidden"
-              onChange={(e) => handleFileChange(title, e.target.files[0])}
+              onChange={(e) => {
+                if (e.target.files.length > 0) {
+                  handleFileChange(key, e.target.files[0]);
+                }
+              }}
             />
           </label>
+
           {preview && (
             <button
-              onClick={() => handleFileChange(title, null)}
-              className="bg-red-500 text-white px-3 py-1.5 rounded text-sm hover:bg-red-600"
+              onClick={() => handleDelete(key)}
+              className="bg-red-600 text-white px-4 py-2 rounded-lg"
             >
               Delete
             </button>
@@ -109,23 +166,41 @@ const ImageManager = () => {
   };
 
   return (
-    <section className="tab-content relative p-4">
-      <div className="absolute top-4 right-4 z-10">
+    <section className="tab-content">
+      {/* Global message */}
+      {message.text && (
+        <div
+          className={`mb-4 p-2 rounded-lg text-white text-center font-semibold ${
+            message.type === "error" ? "bg-red-600" : "bg-green-600"
+          }`}
+        >
+          {message.text}
+        </div>
+      )}
+
+      <div className="flex justify-between items-center mb-6 pb-4 border-b border-gray-200">
+        <div>
+          <h2 className="text-3xl font-bold text-red-600 mb-1">
+            Image Management
+          </h2>
+          <p className="text-sm text-gray-500">
+            Upload and manage left and right side images
+          </p>
+        </div>
+
         <button
           onClick={handleSave}
-          className="bg-blue-600 text-white px-4 py-1.5 rounded text-sm"
+          className="bg-blue-600 text-white px-6 py-2.5 rounded-lg hover:bg-blue-700 transition"
         >
-          Save Changes
+          💾 Save Changes
         </button>
       </div>
 
-      <h2 className="text-2xl font-medium mb-3 text-orange-600">
-        Image Management
-      </h2>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {renderImageBox("Left Side Image", images["Left Side Image"])}
-        {renderImageBox("Right Side Image", images["Right Side Image"])}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-6">
+        {renderImageBox("Left Top Image", "leftTop")}
+        {renderImageBox("Left Bottom Image", "leftBottom")}
+        {renderImageBox("Right Top Image", "rightTop")}
+        {renderImageBox("Right Bottom Image", "rightBottom")}
       </div>
     </section>
   );
