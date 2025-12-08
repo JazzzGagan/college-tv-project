@@ -1,86 +1,104 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { FaPlus, FaSave, FaTrash } from "react-icons/fa";
+import { FaTrash } from "react-icons/fa";
 
-const MAX_NEWS = 5;
+const MAX_EVENTS = 5;
 
 const EventsNewsManager = () => {
-  const [newsList, setNewsList] = useState([
-    { title: "", description: "", image: null },
+  const [events, setEvents] = useState([
+    {
+      title: "",
+      description: "",
+      category: "",
+      date: "",
+      time: "",
+      location: "",
+      image: null,
+    },
   ]);
 
-  // Clean up object URLs (avoid memory leak)
   useEffect(() => {
     return () => {
-      newsList.forEach((item) => {
+      events.forEach((item) => {
         if (item.image && typeof item.image !== "string") {
           URL.revokeObjectURL(item.image);
         }
       });
     };
-  }, [newsList]);
+  }, [events]);
 
-  // Add new news box
-  const handleAddNews = () => {
-    if (newsList.length >= MAX_NEWS) {
-      return alert("Maximum 5 news items allowed!");
+  const handleAddEvent = () => {
+    if (events.length >= MAX_EVENTS) {
+      return alert("Maximum 5 events allowed!");
     }
-    setNewsList([...newsList, { title: "", description: "", image: null }]);
+    setEvents([
+      ...events,
+      {
+        title: "",
+        description: "",
+        category: "",
+        date: "",
+        time: "",
+        location: "",
+        image: null,
+      },
+    ]);
   };
 
-  // Remove a news item
-  const handleRemoveNews = (index) => {
-    const updated = [...newsList];
+  const handleRemoveEvent = (index) => {
+    const updated = [...events];
     updated.splice(index, 1);
-    setNewsList(updated);
+    setEvents(updated);
   };
 
-  // Handle input changes
   const handleInputChange = (index, field, value) => {
-    const updated = [...newsList];
+    const updated = [...events];
     updated[index][field] = value;
-    setNewsList(updated);
+    setEvents(updated);
   };
 
-  // Save all news items
   const handleSave = async () => {
-    // Validation
-    for (let item of newsList) {
-      if (!item.title.trim() || !item.description.trim()) {
-        return alert("Please fill all title and description fields!");
+    for (let ev of events) {
+      if (
+        !ev.title.trim() ||
+        !ev.description.trim() ||
+        !ev.category.trim() ||
+        !ev.date.trim() ||
+        !ev.time.trim() ||
+        !ev.location.trim()
+      ) {
+        return alert("Please fill all required fields!");
       }
     }
 
     const formData = new FormData();
 
-    newsList.forEach((item, index) => {
-      formData.append(`news[${index}][title]`, item.title);
-      formData.append(`news[${index}][description]`, item.description);
+    events.forEach((item, index) => {
+      formData.append(`events[${index}][title]`, item.title);
+      formData.append(`events[${index}][description]`, item.description);
+      formData.append(`events[${index}][category]`, item.category);
+      formData.append(`events[${index}][date]`, item.date);
+      formData.append(`events[${index}][time]`, item.time);
+      formData.append(`events[${index}][location]`, item.location);
 
       if (item.image && typeof item.image !== "string") {
-        formData.append(`news[${index}][image]`, item.image);
+        formData.append(`events[${index}][image]`, item.image);
       }
     });
 
     try {
-      const res = await axios.post(
-        "http://localhost:3000/api/news/upload",
-        formData,
-        {
-          headers: { "Content-Type": "multipart/form-data" },
-        }
-      );
+      await axios.post("http://localhost:3000/api/events/upload", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
 
-      console.log("Saved:", res.data);
-      alert("News saved successfully!");
+      alert("Events saved successfully!");
     } catch (err) {
-      console.error("Save failed:", err);
-      alert("Failed to save news.");
+      console.error(err);
+      alert("Failed to save events.");
     }
   };
 
-  // Render each news block
-  const renderNewsBox = (item, index) => {
+  const renderEventBox = (item, index) => {
     const preview =
       item.image && typeof item.image === "string"
         ? item.image
@@ -93,15 +111,13 @@ const EventsNewsManager = () => {
         key={index}
         className="border rounded-xl p-5 bg-white shadow hover:shadow-lg transition"
       >
-        {/* Header with delete button */}
         <div className="flex justify-between mb-3">
           <h3 className="text-lg font-semibold text-gray-700">
-            News {index + 1}
+            Event {index + 1}
           </h3>
-
-          {newsList.length > 1 && (
+          {events.length > 1 && (
             <button
-              onClick={() => handleRemoveNews(index)}
+              onClick={() => handleRemoveEvent(index)}
               className="px-3 py-1 bg-red-600 flex items-center gap-2 text-white rounded hover:bg-red-700"
             >
               <FaTrash size={14} /> Delete
@@ -109,13 +125,12 @@ const EventsNewsManager = () => {
           )}
         </div>
 
-        {/* Image Preview */}
         <div className="border-2 border-dashed border-gray-300 rounded-lg h-48 flex items-center justify-center bg-gray-50">
           {preview ? (
             <img
               src={preview}
-              className="w-full h-full object-cover rounded-lg"
               alt="preview"
+              className="w-full h-full object-cover rounded-lg"
             />
           ) : (
             <div className="flex flex-col items-center">
@@ -124,19 +139,18 @@ const EventsNewsManager = () => {
                 className="w-12 opacity-40 mb-2"
                 alt="placeholder"
               />
-              <p className="mt-1 text-sm text-gray-500">No image uploaded</p>
+              <p className="text-sm text-gray-500">No image uploaded</p>
             </div>
           )}
         </div>
 
-        {/* Upload + Delete Image Buttons */}
-        <div className="flex gap-3 mt-3">
-          <label className="cursor-pointer text-sm bg-blue-600 flex items-center justify-center gap-2 text-white px-4 py-2 rounded-lg hover:bg-blue-700 w-full text-center">
+        <div className="flex gap-3 mt-3 flex-wrap">
+          <label className="flex-1 cursor-pointer bg-blue-600 text-white px-4 py-2 rounded-lg text-center hover:bg-blue-700 min-w-[120px]">
             Upload Image
             <input
               type="file"
-              accept="image/*"
               className="hidden"
+              accept="image/*"
               onChange={(e) =>
                 handleInputChange(index, "image", e.target.files[0])
               }
@@ -145,65 +159,95 @@ const EventsNewsManager = () => {
 
           {preview && (
             <button
+              className="flex-1 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 min-w-[120px]"
               onClick={() => handleInputChange(index, "image", null)}
-              className="bg-red-600 flex items-center justify-center gap-2 text-white px-4 py-2 rounded-lg text-sm hover:bg-red-700 w-full"
             >
               Remove
             </button>
           )}
         </div>
 
-        {/* Title */}
+        {/* Inputs */}
         <input
           type="text"
-          placeholder="News Title"
+          placeholder="Event Title"
           className="w-full mt-3 p-2 border rounded"
           value={item.title}
           onChange={(e) => handleInputChange(index, "title", e.target.value)}
         />
 
-        {/* Description */}
         <textarea
-          placeholder="News Description"
-          className="w-full mt-2 p-2 border rounded"
           rows={3}
+          placeholder="Event Description"
+          className="w-full mt-2 p-2 border rounded"
           value={item.description}
           onChange={(e) =>
             handleInputChange(index, "description", e.target.value)
           }
+        />
+
+        <input
+          type="text"
+          placeholder="Category (Academic / Cultural / Workshop)"
+          className="w-full mt-2 p-2 border rounded"
+          value={item.category}
+          onChange={(e) => handleInputChange(index, "category", e.target.value)}
+        />
+
+        {/* Date & Time: stack vertically on small screens */}
+        <div className="flex flex-col sm:flex-row gap-3 mt-2">
+          <input
+            type="date"
+            className="flex-1 p-2 border rounded"
+            value={item.date}
+            onChange={(e) => handleInputChange(index, "date", e.target.value)}
+          />
+          <input
+            type="time"
+            className="flex-1 p-2 border rounded"
+            value={item.time}
+            onChange={(e) => handleInputChange(index, "time", e.target.value)}
+          />
+        </div>
+
+        <input
+          type="text"
+          placeholder="Location"
+          className="w-full mt-2 p-2 border rounded"
+          value={item.location}
+          onChange={(e) => handleInputChange(index, "location", e.target.value)}
         />
       </div>
     );
   };
 
   return (
-    <section className="p-5">
-      {/* Header */}
-      <div className="flex justify-between items-center mb-6 pb-4 border-b">
-        <h2 className="text-3xl font-bold text-red-600">Events & News</h2>
+    <section className="p-5 max-w-[1200px] mx-auto">
+      <div className="flex flex-col sm:flex-row justify-between items-center mb-6 pb-4 border-b gap-4">
+        <h2 className="text-3xl font-bold text-blue-700">Manage Events</h2>
 
-        <div className="flex gap-3">
-          {newsList.length < MAX_NEWS && (
+        <div className="flex flex-wrap gap-3">
+          {events.length < MAX_EVENTS && (
             <button
-              onClick={handleAddNews}
-              className="bg-green-600 text-white flex items-center gap-2 px-5 py-2 rounded-lg hover:bg-green-700"
+              onClick={handleAddEvent}
+              className="bg-green-600 text-white px-5 py-2 rounded-lg hover:bg-green-700"
             >
-              Add News
+              Add Event
             </button>
           )}
 
           <button
             onClick={handleSave}
-            className="bg-blue-600 text-white flex items-center gap-2 px-6 py-2 rounded-lg hover:bg-blue-700"
+            className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
           >
-            💾 Save All
+            Save All
           </button>
         </div>
       </div>
 
-      {/* News Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-        {newsList.map((item, index) => renderNewsBox(item, index))}
+      {/* Grid: 1 column mobile, 2 columns md+ */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {events.map((item, index) => renderEventBox(item, index))}
       </div>
     </section>
   );
