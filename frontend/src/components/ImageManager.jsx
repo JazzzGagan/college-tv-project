@@ -93,7 +93,11 @@ const ImageManager = () => {
   // Delete an image by key
   const handleDelete = async (key) => {
     try {
-      await axios.delete(`http://localhost:3000/api/image/${key}`);
+      const url = images[key];
+      await axios.post("http://localhost:3000/api/delete-image", {
+        key,
+        url,
+      });
 
       setImages((prev) => ({
         ...prev,

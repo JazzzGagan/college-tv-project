@@ -11,7 +11,7 @@ let currentState = {
     rightTop: [],
     rightBottom: [],
   },
-  videoUrl: [],
+  videoUrl: "",
   notices: [],
   description: "",
 };
@@ -139,14 +139,52 @@ export const addVideo = async (req, res) => {
   if (!req.file)
     return res.status(400).json({ message: "No video file provided" });
 
-  const videoUrl = `http://localhost:3000/video/${req.file.filename}`;
-  currentState.videoUrl.push(videoUrl);
+  const newVideoUrl = `http://localhost:3000/video/${req.file.filename}`;
 
-  currentState.videoUrl = videoUrl;
+  // DELETE OLD VIDEO IF EXISTS
+  if (currentState.videoUrl) {
+    const oldFilename = currentState.videoUrl.split("/video/")[1];
+    const oldFilePath = path.join("media/video", oldFilename);
 
-  broadcast({ type: "video", videoUrl });
+    if (fs.existsSync(oldFilePath)) {
+      fs.unlinkSync(oldFilePath);
+    }
+  }
 
-  res.json({ message: "Video uploaded successfully", videoUrl });
+  // SAVE NEW VIDEO URL
+  currentState.videoUrl = newVideoUrl;
+
+  // SSE BROADCAST
+  broadcast({ type: "video", videoUrl: newVideoUrl });
+
+  res.json({ message: "Video replaced successfully", videoUrl: newVideoUrl });
+};
+
+// GET VIDEO
+export const getVideo = (req, res) => {
+  res.json({ videoUrl: currentState.videoUrl });
+};
+
+export const deleteVideo = (req, res) => {
+  const filename = req.params.fielename;
+
+  const filePath = path.join("media/video", filename);
+
+  if (!fs.existSync(filePath)) {
+    return res.status(400).json({
+      message: "Video not found",
+    });
+  }
+
+  fs.unlinkSync(filePath);
+
+  currentState.videoUrl = currentState.videoUrl.filter(
+    (url) => !url.endsWith("/" + filename)
+  );
+
+  broadcast({ type: "delete_video", filename });
+
+  res.json({ message: "Video deleted Successfully" });
 };
 
 //@desc update notices
@@ -196,7 +234,17 @@ export const getAllImages = async (req, res) => {
 export const deleteImage = async (req, res) => {
   const { key, url } = req.body;
 
-  currentState.images = currentState.images.key.filter((img) => img !== url);
+  if (!key || !url) {
+    return res.status(400).json({ message: "Key and URL  required" });
+  }
+
+  if (!currentState.images[key]) {
+    return res.status(400).json({ message: "Invalid image Key" });
+  }
+
+  currentState.images[key] = currentState.images[key].filter(
+    (img) => img !== url
+  );
   broadcast({ type: "images", images: currentState.images });
   res.json({ message: "Image deleted", images: currentState.images });
 };
