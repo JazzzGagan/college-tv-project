@@ -57,7 +57,6 @@ export const loginAdmin = async (req, res) => {
   }
 };
 
-// ---- IMAGE UPLOAD CONFIG ----
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, path.join("media", "images"));
@@ -195,9 +194,16 @@ export const updateNotices = async (req, res) => {
 
   currentState.notices = noticesArray;
 
-  broadcast({ type: "notices", notices: noticesArray });
+  broadcast({ type: "notices", notices: currentState.notices });
 
-  res.json({ message: "Notices updated", notices: noticesArray });
+  res.json({ message: "Notices updated", notices: currentState.notices });
+};
+
+//@desc get all notices
+//@route GET /all-notices
+//@access Private
+export const getAllNotices = async (req, res) => {
+  res.json({ notices: currentState.notices });
 };
 
 //@desc update description
@@ -205,6 +211,7 @@ export const updateNotices = async (req, res) => {
 //@access Private
 export const updateDescription = async (req, res) => {
   const { description } = req.body;
+  console.log(description);
 
   if (description === undefined) {
     return res.status(400).json({ message: "Description is required" });

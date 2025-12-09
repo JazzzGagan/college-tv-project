@@ -71,14 +71,13 @@ const NewHome = () => {
   const [videoUrl, setVideoUrl] = useState("");
   const [notices, setNotices] = useState(DEFAULT_NOTICES);
   const [description, setDescription] = useState("");
-
   const [time, setTime] = useState("");
   const [date, setDate] = useState("");
-
   const DEFAULT_VIDEO =
     "https://www.youtube.com/embed/WuQufuY3UBg?autoplay=1&mute=1&loop=1&playlist=WuQufuY3UBg&controls=1&rel=0";
-
   const videoRef = useRef(null);
+
+  console.log("test", leftTop);
 
   // Video autoplay effect
   useEffect(() => {
@@ -478,45 +477,49 @@ const NewHome = () => {
       >
         <div className="flex items-center px-6">
           <div className="flex items-center gap-2 mr-6 shrink-0">
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
-              />
-            </svg>
             <span className="text-sm font-medium">Updates</span>
           </div>
+
+          {/* Marquee container */}
           <div className="flex-1 overflow-hidden relative">
-            <div className="flex animate-scroll whitespace-nowrap">
+            <div
+              className="flex whitespace-nowrap"
+              style={{
+                animation: "marquee 40s linear infinite",
+              }}
+            >
               {notices.map((notice, index) => (
                 <span
-                  key={notice.id || index}
-                  className="flex items-center mr-12"
+                  key={index}
+                  className="flex items-center mr-12 "
                 >
                   <span className="mr-2">●</span>
-                  <span>{notice.text || "No notice available."}</span>
+                  <span>{notice.text}</span>
                 </span>
               ))}
-              {/* Duplicate for seamless loop */}
+           
               {notices.map((notice, index) => (
                 <span
-                  key={`duplicate-${notice.id || index}`}
-                  className="flex items-center mr-12"
+                  key={`dup-${index}`}
+                  className="flex items-center mr-12 "
                 >
                   <span className="mr-2">●</span>
-                  <span>{notice.text || "No notice available."}</span>
+                  <span>{notice.text}</span>
                 </span>
               ))}
             </div>
           </div>
         </div>
+
+        {/* Inline keyframes */}
+        <style>
+          {`
+      @keyframes marquee {
+        0% { transform: translateX(100%); }
+        100% { transform: translateX(-100%); }
+      }
+    `}
+        </style>
       </div>
 
       {/* Hidden Description */}
