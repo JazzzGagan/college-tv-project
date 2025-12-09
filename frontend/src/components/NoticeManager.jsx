@@ -5,8 +5,6 @@ const NoticeManager = () => {
   const [notices, setNotices] = useState([]);
   const [newNoticeText, setNewNoticeText] = useState("");
   const [editIndex, setEditIndex] = useState(null);
-
-  // message UI state
   const [message, setMessage] = useState({ type: "", text: "" });
 
   const showMessage = (type, text) => {
@@ -18,7 +16,9 @@ const NoticeManager = () => {
     const fetchNotices = async () => {
       try {
         const res = await axios.get("http://localhost:3000/api/notices");
-        setNotices(res.data || []);
+        console.log(res.data);
+        
+        setNotices(res.data.notices || []);
       } catch {
         showMessage("error", "Failed to load notices");
       }
