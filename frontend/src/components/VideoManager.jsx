@@ -1,20 +1,21 @@
 import axios from "axios";
 import React, { useState, useEffect } from "react";
+import { FolderOpen } from "lucide-react";
+import { FaFolderOpen } from "react-icons/fa";
 
 const VideoManager = () => {
   const [selectedVideo, setSelectedVideo] = useState(null);
   const [previewUrl, setPreviewUrl] = useState("");
   const [uploadProgress, setUploadProgress] = useState(0);
 
-  // message state as { type, text }
   const [message, setMessage] = useState({ type: "", text: "" });
 
-  // showMessage accepts type and text
   const showMessage = (type, text) => {
     setMessage({ type, text });
     setTimeout(() => setMessage({ type: "", text: "" }), 3000);
   };
 
+  // LOAD CURRENT VIDEO
   useEffect(() => {
     const fetchVideo = async () => {
       try {
@@ -30,9 +31,10 @@ const VideoManager = () => {
     fetchVideo();
   }, []);
 
+  // UPLOAD OR REPLACE VIDEO
   const handleUpload = async () => {
     if (!selectedVideo) {
-      showMessage("error", " No video selected");
+      showMessage("error", "No video selected");
       return;
     }
 
@@ -46,17 +48,17 @@ const VideoManager = () => {
         {
           headers: { "Content-Type": "multipart/form-data" },
           onUploadProgress: (e) => {
-            const percent = Math.round((e.loaded * 100) / e.total);
-            setUploadProgress(percent);
+            setUploadProgress(Math.round((e.loaded * 100) / e.total));
           },
         }
       );
 
+      // Set new video preview
       setPreviewUrl(res.data.videoUrl);
       setSelectedVideo(null);
       setUploadProgress(0);
 
-      showMessage("success", "✅ Video uploaded successfully!");
+      showMessage("success", "Video uploaded successfully!");
     } catch (err) {
       console.error(err);
       showMessage("error", "Upload failed!");
@@ -64,6 +66,7 @@ const VideoManager = () => {
     }
   };
 
+  // DELETE VIDEO
   const handleDelete = async () => {
     try {
       await axios.delete("http://localhost:3000/api/video");
@@ -71,7 +74,7 @@ const VideoManager = () => {
       setPreviewUrl("");
       setSelectedVideo(null);
 
-      showMessage("success", " Video deleted successfully!");
+      showMessage("success", "Video deleted successfully!");
     } catch (err) {
       console.error(err);
       showMessage("error", "Failed to delete video");
@@ -80,7 +83,6 @@ const VideoManager = () => {
 
   return (
     <section className="tab-content">
-      {/* Global message bar with dynamic bg */}
       {message.text && (
         <div
           className={`mb-4 p-2 rounded-lg text-white text-center ${
@@ -96,7 +98,9 @@ const VideoManager = () => {
           <h2 className="text-3xl font-bold text-red-600 mb-1">
             Video Management
           </h2>
-          <p className="text-sm text-gray-500">Upload and manage video content</p>
+          <p className="text-sm text-gray-500">
+            Upload and manage video content
+          </p>
         </div>
 
         <div className="flex items-center gap-4">
@@ -109,7 +113,7 @@ const VideoManager = () => {
                 ></div>
               </div>
               <span className="text-xs mt-1 text-gray-600 font-medium">
-                {uploadProgress}% uploaded
+                {uploadProgress}%
               </span>
             </div>
           )}
@@ -118,12 +122,11 @@ const VideoManager = () => {
             onClick={handleUpload}
             className="bg-blue-600 text-white px-6 py-2.5 rounded-lg hover:bg-blue-700 shadow-md hover:shadow-lg font-semibold transform hover:scale-105"
           >
-            💾 Save Changes
+            Save Changes
           </button>
         </div>
       </div>
 
-      {/* Choose file */}
       <div className="mb-6">
         <input
           type="file"
@@ -135,36 +138,36 @@ const VideoManager = () => {
 
         <label
           htmlFor="videoUpload"
-          className="inline-block bg-gray-500 text-white px-5 py-2.5 rounded-lg cursor-pointer hover:bg-gray-600 shadow-md hover:shadow-lg font-medium"
+          className="inline-flex items-center gap-2 bg-gray-500 text-white px-5 py-2.5 rounded-lg cursor-pointer hover:bg-gray-600 shadow-md hover:shadow-lg font-medium"
         >
-          📁 Choose Video
+          <FaFolderOpen size={18} className="text-yellow-400" />
+          Choose Video
         </label>
       </div>
 
-      {/* Preview Section */}
       {(selectedVideo || previewUrl) && (
         <div className="flex flex-col gap-4 bg-gray-50 p-6 rounded-xl shadow-md border border-gray-200">
           <video
-            src={selectedVideo ? URL.createObjectURL(selectedVideo) : previewUrl}
+            src={
+              selectedVideo ? URL.createObjectURL(selectedVideo) : previewUrl
+            }
             controls
             className="w-full max-w-4xl h-auto border-2 border-gray-300 rounded-lg shadow-sm"
           />
 
-          {/* Remove selected video */}
           {selectedVideo && (
             <button
               onClick={() => setSelectedVideo(null)}
-              className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 shadow-sm hover:shadow-md font-medium self-start"
+              className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 shadow-sm font-medium self-start"
             >
               Remove Selected Video
             </button>
           )}
 
-          {/* Delete backend video */}
           {previewUrl && !selectedVideo && (
             <button
               onClick={handleDelete}
-              className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 shadow-sm hover:shadow-md font-medium self-start"
+              className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 shadow-sm font-medium self-start"
             >
               Delete Video
             </button>

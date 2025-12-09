@@ -1,4 +1,5 @@
 import multer from "multer";
+import { type } from "os";
 import path from "path";
 
 let clients = [];
@@ -10,27 +11,22 @@ let currentState = {
     rightTop: [],
     rightBottom: [],
   },
-  videoUrl: [],
+  videoUrl: "",
   notices: [],
   description: "",
 };
 
 export const serverSentEvent = async (req, res) => {
-  res.setHeader("Access-Control-Allow-Origin", "http://localhost:5173"); 
-  res.setHeader("Access-Control-Allow-Credentials", "true");
   res.setHeader("Content-Type", "text/event-stream");
   res.setHeader("Cache-Control", "no-cache");
   res.setHeader("Connection", "keep-alive");
-
   res.flushHeaders();
 
   res.write(`data: ${JSON.stringify({ message: "connected" })}\n\n`);
 
   clients.push(res);
-
   req.on("close", () => {
     clients = clients.filter((c) => c !== res);
-    res.end();
   });
 };
 
@@ -61,14 +57,14 @@ export const loginAdmin = async (req, res) => {
   }
 };
 
-// ---- IMAGE UPLOAD CONFIG ----
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, path.join("media", "images"));
   },
   filename: (req, file, cb) => {
     const ext = path.extname(file.originalname);
-    cb(null, file.fieldname + ext);
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    cb(null, file.fieldname + "-" + uniqueSuffix + ext);
   },
 });
 
@@ -142,14 +138,52 @@ export const addVideo = async (req, res) => {
   if (!req.file)
     return res.status(400).json({ message: "No video file provided" });
 
-  const videoUrl = `http://localhost:3000/video/${req.file.filename}`;
-  currentState.videoUrl.push(videoUrl);
+  const newVideoUrl = `http://localhost:3000/video/${req.file.filename}`;
 
-  currentState.videoUrl = videoUrl;
+  // DELETE OLD VIDEO IF EXISTS
+  if (currentState.videoUrl) {
+    const oldFilename = currentState.videoUrl.split("/video/")[1];
+    const oldFilePath = path.join("media/video", oldFilename);
 
-  broadcast({ type: "video", videoUrl });
+    if (fs.existsSync(oldFilePath)) {
+      fs.unlinkSync(oldFilePath);
+    }
+  }
 
-  res.json({ message: "Video uploaded successfully", videoUrl });
+  // SAVE NEW VIDEO URL
+  currentState.videoUrl = newVideoUrl;
+
+  // SSE BROADCAST
+  broadcast({ type: "video", videoUrl: newVideoUrl });
+
+  res.json({ message: "Video replaced successfully", videoUrl: newVideoUrl });
+};
+
+// GET VIDEO
+export const getVideo = (req, res) => {
+  res.json({ videoUrl: currentState.videoUrl });
+};
+
+export const deleteVideo = (req, res) => {
+  const filename = req.params.fielename;
+
+  const filePath = path.join("media/video", filename);
+
+  if (!fs.existSync(filePath)) {
+    return res.status(400).json({
+      message: "Video not found",
+    });
+  }
+
+  fs.unlinkSync(filePath);
+
+  currentState.videoUrl = currentState.videoUrl.filter(
+    (url) => !url.endsWith("/" + filename)
+  );
+
+  broadcast({ type: "delete_video", filename });
+
+  res.json({ message: "Video deleted Successfully" });
 };
 
 //@desc update notices
@@ -160,9 +194,16 @@ export const updateNotices = async (req, res) => {
 
   currentState.notices = noticesArray;
 
-  broadcast({ type: "notices", notices: noticesArray });
+  broadcast({ type: "notices", notices: currentState.notices });
 
-  res.json({ message: "Notices updated", notices: noticesArray });
+  res.json({ message: "Notices updated", notices: currentState.notices });
+};
+
+//@desc get all notices
+//@route GET /all-notices
+//@access Private
+export const getAllNotices = async (req, res) => {
+  res.json({ notices: currentState.notices });
 };
 
 //@desc update description
@@ -170,6 +211,7 @@ export const updateNotices = async (req, res) => {
 //@access Private
 export const updateDescription = async (req, res) => {
   const { description } = req.body;
+  console.log(description);
 
   if (description === undefined) {
     return res.status(400).json({ message: "Description is required" });
@@ -191,4 +233,25 @@ export const updateDescription = async (req, res) => {
 
 export const getAllImages = async (req, res) => {
   res.json({ images: currentState.images });
+};
+//@desc deleteImage
+//@route GET /all-images
+//@access Private
+
+export const deleteImage = async (req, res) => {
+  const { key, url } = req.body;
+
+  if (!key || !url) {
+    return res.status(400).json({ message: "Key and URL  required" });
+  }
+
+  if (!currentState.images[key]) {
+    return res.status(400).json({ message: "Invalid image Key" });
+  }
+
+  currentState.images[key] = currentState.images[key].filter(
+    (img) => img !== url
+  );
+  broadcast({ type: "images", images: currentState.images });
+  res.json({ message: "Image deleted", images: currentState.images });
 };

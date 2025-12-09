@@ -1,10 +1,6 @@
 import React, { useRef, useState, useEffect } from "react";
 import logo from "../assets/images.png";
 import { Link } from "react-router-dom";
-<<<<<<< HEAD
-
-=======
->>>>>>> be08cdff0b63ce51e26287c8aa796eaec99f1d80
 
 const NewHome = () => {
   // Default placeholder images - University themed
@@ -75,14 +71,13 @@ const NewHome = () => {
   const [videoUrl, setVideoUrl] = useState("");
   const [notices, setNotices] = useState(DEFAULT_NOTICES);
   const [description, setDescription] = useState("");
-
   const [time, setTime] = useState("");
   const [date, setDate] = useState("");
-
   const DEFAULT_VIDEO =
     "https://www.youtube.com/embed/WuQufuY3UBg?autoplay=1&mute=1&loop=1&playlist=WuQufuY3UBg&controls=1&rel=0";
-
   const videoRef = useRef(null);
+
+  console.log("test", leftTop);
 
   // Video autoplay effect
   useEffect(() => {
@@ -123,8 +118,24 @@ const NewHome = () => {
       try {
         const res = await fetch("http://localhost:3000/api/current-state");
         const data = await res.json();
-        setLeftImage(data.leftImage || DEFAULT_LEFT_IMAGE);
-        setRightImage(data.rightImage || DEFAULT_RIGHT_IMAGE);
+        console.log("amges at Home", data);
+
+        setLeftTop(
+          data.images.leftTop[data.images.leftTop.length - 1] ||
+            DEFAULT_LEFT_IMAGE
+        );
+        setLeftBottom(
+          data.images.leftBottom[data.images.leftBottom.length - 1] ||
+            DEFAULT_RIGHT_IMAGE
+        );
+        setRightTop(
+          data.images.rightTop[data.images.rightTop.length - 1] ||
+            DEFAULT_LEFT_IMAGE
+        );
+        setRightBottom(
+          data.images.rightBottom[data.images.rightBottom.length - 1] ||
+            DEFAULT_RIGHT_IMAGE
+        );
         setVideoUrl(data.videoUrl);
         setNotices(
           data.notices && data.notices.length > 0
@@ -354,22 +365,12 @@ const NewHome = () => {
       <div className="flex-1 flex gap-4 p-6 overflow-hidden bg-gray-200">
         {/* Left Sidebar */}
         <div className="w-1/4 flex flex-col gap-4">
-<<<<<<< HEAD
-          <div className="flex-1 rounded-lg overflow-hidden bg-white group animate-fade-in">
-            {leftImage ? (
-              <img 
-                src={leftImage} 
-                alt="Left Image 1" 
-                className="w-full h-full object-cover transition-transform duration-700 ease-in-out group-hover:scale-110" 
-                style={{ animation: 'fadeIn 0.8s ease-in' }}
-=======
           <div className="flex-1 rounded-lg overflow-hidden shadow-md bg-white">
             {leftTop ? (
               <img
                 src={leftTop}
                 alt="Left Image 1"
                 className="w-full h-full object-cover"
->>>>>>> be08cdff0b63ce51e26287c8aa796eaec99f1d80
               />
             ) : (
               <div className="w-full h-full bg-gray-100 flex items-center justify-center">
@@ -377,13 +378,15 @@ const NewHome = () => {
               </div>
             )}
           </div>
-          <div className="flex-1 rounded-lg overflow-hidden bg-white group animate-fade-in" style={{ animationDelay: '0.2s' }}>
-            {leftImage ? (
+          <div
+            className="flex-1 rounded-lg overflow-hidden bg-white group animate-fade-in"
+            style={{ animationDelay: "0.2s" }}
+          >
+            {leftBottom ? (
               <img
-                src={leftImage}
+                src={leftBottom}
                 alt="Left Image 2"
                 className="w-full h-full object-cover"
->>>>>>> be08cdff0b63ce51e26287c8aa796eaec99f1d80
               />
             ) : (
               <div className="w-full h-full bg-gray-100 flex items-center justify-center">
@@ -394,11 +397,7 @@ const NewHome = () => {
         </div>
 
         {/* Center Video */}
-<<<<<<< HEAD
-        <div className="flex-1 rounded-lg overflow-hidden bg-black relative">
-=======
         <div className="w-1/2 rounded-lg overflow-hidden shadow-lg bg-black relative">
->>>>>>> be08cdff0b63ce51e26287c8aa796eaec99f1d80
           {videoUrl ? (
             <video
               ref={videoRef}
@@ -418,12 +417,6 @@ const NewHome = () => {
               frameBorder="0"
             />
           )}
-<<<<<<< HEAD
-          <div className="absolute bottom-6 right-6 rounded-full p-3 cursor-pointer opacity-70 hover:opacity-90 transition-opacity" style={{ backgroundColor: '#023F88' }}>
-            <div className="w-5 h-5 flex items-center justify-center">
-              <div className="w-1 h-5 bg-white rounded-sm"></div>
-              <div className="w-1 h-5 bg-white rounded-sm ml-1"></div>
-=======
           <div
             className="absolute bottom-8 right-8 rounded-full p-4 cursor-pointer transition-colors opacity-70"
             style={{ backgroundColor: "#023F88" }}
@@ -439,29 +432,18 @@ const NewHome = () => {
             <div className="w-6 h-6 flex items-center justify-center">
               <div className="w-1.5 h-6 bg-white rounded-sm"></div>
               <div className="w-1.5 h-6 bg-white rounded-sm ml-1.5"></div>
->>>>>>> be08cdff0b63ce51e26287c8aa796eaec99f1d80
             </div>
           </div>
         </div>
 
         {/* Right Sidebar */}
         <div className="w-1/4 flex flex-col gap-4">
-<<<<<<< HEAD
-          <div className="flex-1 rounded-lg overflow-hidden bg-white group animate-fade-in" style={{ animationDelay: '0.1s' }}>
-            {rightImage ? (
-              <img 
-                src={rightImage} 
-                alt="Right Image 1" 
-                className="w-full h-full object-cover transition-transform duration-700 ease-in-out group-hover:scale-110" 
-                style={{ animation: 'fadeIn 0.8s ease-in 0.1s both' }}
-=======
           <div className="flex-1 rounded-lg overflow-hidden shadow-md bg-white">
             {rightTop ? (
               <img
                 src={rightTop}
                 alt="Right Image 1"
                 className="w-full h-full object-cover"
->>>>>>> be08cdff0b63ce51e26287c8aa796eaec99f1d80
               />
             ) : (
               <div className="w-full h-full bg-gray-100 flex items-center justify-center">
@@ -469,13 +451,15 @@ const NewHome = () => {
               </div>
             )}
           </div>
-          <div className="flex-1 rounded-lg overflow-hidden bg-white group animate-fade-in" style={{ animationDelay: '0.3s' }}>
-            {rightImage ? (
+          <div
+            className="flex-1 rounded-lg overflow-hidden bg-white group animate-fade-in"
+            style={{ animationDelay: "0.3s" }}
+          >
+            {rightBottom ? (
               <img
-                src={rightImage}
+                src={rightBottom}
                 alt="Right Image 2"
                 className="w-full h-full object-cover"
->>>>>>> be08cdff0b63ce51e26287c8aa796eaec99f1d80
               />
             ) : (
               <div className="w-full h-full bg-gray-100 flex items-center justify-center">
@@ -487,55 +471,55 @@ const NewHome = () => {
       </div>
 
       {/* Notices Bar */}
-<<<<<<< HEAD
-      <div className="text-white py-3 overflow-hidden" style={{ backgroundColor: '#023F88' }}>
-=======
       <div
         className="text-white py-4 overflow-hidden shadow-lg"
         style={{ backgroundColor: "#023F88" }}
       >
->>>>>>> be08cdff0b63ce51e26287c8aa796eaec99f1d80
         <div className="flex items-center px-6">
           <div className="flex items-center gap-2 mr-6 shrink-0">
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
-              />
-            </svg>
             <span className="text-sm font-medium">Updates</span>
           </div>
+
+          {/* Marquee container */}
           <div className="flex-1 overflow-hidden relative">
-            <div className="flex animate-scroll whitespace-nowrap">
+            <div
+              className="flex whitespace-nowrap"
+              style={{
+                animation: "marquee 40s linear infinite",
+              }}
+            >
               {notices.map((notice, index) => (
                 <span
-                  key={notice.id || index}
-                  className="flex items-center mr-12"
+                  key={index}
+                  className="flex items-center mr-12 "
                 >
                   <span className="mr-2">●</span>
-                  <span>{notice.text || "No notice available."}</span>
+                  <span>{notice.text}</span>
                 </span>
               ))}
-              {/* Duplicate for seamless loop */}
+           
               {notices.map((notice, index) => (
                 <span
-                  key={`duplicate-${notice.id || index}`}
-                  className="flex items-center mr-12"
+                  key={`dup-${index}`}
+                  className="flex items-center mr-12 "
                 >
                   <span className="mr-2">●</span>
-                  <span>{notice.text || "No notice available."}</span>
+                  <span>{notice.text}</span>
                 </span>
               ))}
             </div>
           </div>
         </div>
+
+        {/* Inline keyframes */}
+        <style>
+          {`
+      @keyframes marquee {
+        0% { transform: translateX(100%); }
+        100% { transform: translateX(-100%); }
+      }
+    `}
+        </style>
       </div>
 
       {/* Hidden Description */}
