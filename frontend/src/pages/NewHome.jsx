@@ -1,10 +1,6 @@
 import React, { useRef, useState, useEffect } from "react";
 import logo from "../assets/images.png";
 import { Link } from "react-router-dom";
-<<<<<<< HEAD
-
-=======
->>>>>>> be08cdff0b63ce51e26287c8aa796eaec99f1d80
 
 const NewHome = () => {
   // Default placeholder images - University themed
@@ -370,22 +366,12 @@ const NewHome = () => {
       <div className="flex-1 flex gap-4 p-6 overflow-hidden bg-gray-200">
         {/* Left Sidebar */}
         <div className="w-1/4 flex flex-col gap-4">
-<<<<<<< HEAD
-          <div className="flex-1 rounded-lg overflow-hidden bg-white group animate-fade-in">
-            {leftImage ? (
-              <img 
-                src={leftImage} 
-                alt="Left Image 1" 
-                className="w-full h-full object-cover transition-transform duration-700 ease-in-out group-hover:scale-110" 
-                style={{ animation: 'fadeIn 0.8s ease-in' }}
-=======
           <div className="flex-1 rounded-lg overflow-hidden shadow-md bg-white">
             {leftTop ? (
               <img
                 src={leftTop}
                 alt="Left Image 1"
                 className="w-full h-full object-cover"
->>>>>>> be08cdff0b63ce51e26287c8aa796eaec99f1d80
               />
             ) : (
               <div className="w-full h-full bg-gray-100 flex items-center justify-center">
@@ -393,15 +379,6 @@ const NewHome = () => {
               </div>
             )}
           </div>
-<<<<<<< HEAD
-          <div className="flex-1 rounded-lg overflow-hidden bg-white group animate-fade-in" style={{ animationDelay: '0.2s' }}>
-            {leftImage ? (
-              <img 
-                src={leftImage} 
-                alt="Left Image 2" 
-                className="w-full h-full object-cover transition-transform duration-700 ease-in-out group-hover:scale-110" 
-                style={{ animation: 'fadeIn 0.8s ease-in 0.2s both' }}
-=======
           <div
             className="flex-1 rounded-lg overflow-hidden bg-white group animate-fade-in"
             style={{ animationDelay: "0.2s" }}
@@ -411,7 +388,6 @@ const NewHome = () => {
                 src={leftBottom}
                 alt="Left Image 2"
                 className="w-full h-full object-cover"
->>>>>>> be08cdff0b63ce51e26287c8aa796eaec99f1d80
               />
             ) : (
               <div className="w-full h-full bg-gray-100 flex items-center justify-center">
@@ -422,11 +398,7 @@ const NewHome = () => {
         </div>
 
         {/* Center Video */}
-<<<<<<< HEAD
-        <div className="flex-1 rounded-lg overflow-hidden bg-black relative">
-=======
         <div className="w-1/2 rounded-lg overflow-hidden shadow-lg bg-black relative">
->>>>>>> be08cdff0b63ce51e26287c8aa796eaec99f1d80
           {videoUrl ? (
             <video
               ref={videoRef}
@@ -446,12 +418,6 @@ const NewHome = () => {
               frameBorder="0"
             />
           )}
-<<<<<<< HEAD
-          <div className="absolute bottom-6 right-6 rounded-full p-3 cursor-pointer opacity-70 hover:opacity-90 transition-opacity" style={{ backgroundColor: '#023F88' }}>
-            <div className="w-5 h-5 flex items-center justify-center">
-              <div className="w-1 h-5 bg-white rounded-sm"></div>
-              <div className="w-1 h-5 bg-white rounded-sm ml-1"></div>
-=======
           <div
             className="absolute bottom-8 right-8 rounded-full p-4 cursor-pointer transition-colors opacity-70"
             style={{ backgroundColor: "#023F88" }}
@@ -467,29 +433,18 @@ const NewHome = () => {
             <div className="w-6 h-6 flex items-center justify-center">
               <div className="w-1.5 h-6 bg-white rounded-sm"></div>
               <div className="w-1.5 h-6 bg-white rounded-sm ml-1.5"></div>
->>>>>>> be08cdff0b63ce51e26287c8aa796eaec99f1d80
             </div>
           </div>
         </div>
 
         {/* Right Sidebar */}
         <div className="w-1/4 flex flex-col gap-4">
-<<<<<<< HEAD
-          <div className="flex-1 rounded-lg overflow-hidden bg-white group animate-fade-in" style={{ animationDelay: '0.1s' }}>
-            {rightImage ? (
-              <img 
-                src={rightImage} 
-                alt="Right Image 1" 
-                className="w-full h-full object-cover transition-transform duration-700 ease-in-out group-hover:scale-110" 
-                style={{ animation: 'fadeIn 0.8s ease-in 0.1s both' }}
-=======
           <div className="flex-1 rounded-lg overflow-hidden shadow-md bg-white">
             {rightTop ? (
               <img
                 src={rightTop}
                 alt="Right Image 1"
                 className="w-full h-full object-cover"
->>>>>>> be08cdff0b63ce51e26287c8aa796eaec99f1d80
               />
             ) : (
               <div className="w-full h-full bg-gray-100 flex items-center justify-center">
@@ -497,15 +452,6 @@ const NewHome = () => {
               </div>
             )}
           </div>
-<<<<<<< HEAD
-          <div className="flex-1 rounded-lg overflow-hidden bg-white group animate-fade-in" style={{ animationDelay: '0.3s' }}>
-            {rightImage ? (
-              <img 
-                src={rightImage} 
-                alt="Right Image 2" 
-                className="w-full h-full object-cover transition-transform duration-700 ease-in-out group-hover:scale-110" 
-                style={{ animation: 'fadeIn 0.8s ease-in 0.3s both' }}
-=======
           <div
             className="flex-1 rounded-lg overflow-hidden bg-white group animate-fade-in"
             style={{ animationDelay: "0.3s" }}
@@ -515,7 +461,6 @@ const NewHome = () => {
                 src={rightBottom}
                 alt="Right Image 2"
                 className="w-full h-full object-cover"
->>>>>>> be08cdff0b63ce51e26287c8aa796eaec99f1d80
               />
             ) : (
               <div className="w-full h-full bg-gray-100 flex items-center justify-center">
@@ -527,14 +472,10 @@ const NewHome = () => {
       </div>
 
       {/* Notices Bar */}
-<<<<<<< HEAD
-      <div className="text-white py-3 overflow-hidden" style={{ backgroundColor: '#023F88' }}>
-=======
       <div
         className="text-white py-4 overflow-hidden shadow-lg"
         style={{ backgroundColor: "#023F88" }}
       >
->>>>>>> be08cdff0b63ce51e26287c8aa796eaec99f1d80
         <div className="flex items-center px-6">
           <div className="flex items-center gap-2 mr-6 shrink-0">
             <svg

@@ -36,27 +36,27 @@ const Staff = () => {
   const staffMembers = [
     {
       id: 1,
-      name: "Dr. Sarah Johnson",
-      position: "Principal",
+      name: "Dr Dinesh Nakarmi",
+      position: "Chairman",
       department: "Administration",
-      email: "sarah.johnson@college.edu",
+      email: "Dinesh.Nakarmi@college.edu",
       phone: "+1 (555) 123-4567",
       image: principleImage,
       bio: "Ph.D. in Education with 20+ years of experience in academic leadership."
     },
     {
       id: 2,
-      name: "Prof. Michael Chen",
-      position: "Head of Science",
-      department: "Science",
-      email: "michael.chen@college.edu",
+      name: "Pranaya Nakarimi",
+      position: "Head of ACHS department",
+      department: "CSIT",
+      email: "Pranaya.chen@college.edu",
       phone: "+1 (555) 123-4568",
       image: pranayaImage,
       bio: "Expert in Physics and Mathematics with numerous research publications."
     },
     {
       id: 3,
-      name: "Dr. Emily Rodriguez",
+      name: "Chindman Ghimire",
       position: "Head of Humanities",
       department: "Humanities",
       email: "emily.rodriguez@college.edu",
@@ -277,7 +277,7 @@ const Staff = () => {
 
                   {/* Student Name */}
                   <div className="mt-6">
-                    <p className="font-bold text-gray-900 text-lg">Dawa Ynagjee Sherpa</p>
+                    <p className="font-bold text-gray-900 text-lg">Dinesh Nakrami</p>
                     <p className="text-gray-600 mt-1">BTTM, 2020</p>
                   </div>
                 </div>
@@ -316,7 +316,7 @@ const Staff = () => {
 
                   {/* Student Name */}
                   <div className="mt-6">
-                    <p className="font-bold text-gray-900 text-lg">Sarah Johnson</p>
+                    <p className="font-bold text-gray-900 text-lg">Pranaya Nakarmi</p>
                     <p className="text-gray-600 mt-1">BBA, 2021</p>
                   </div>
                 </div>
@@ -355,7 +355,7 @@ const Staff = () => {
 
                   {/* Student Name */}
                   <div className="mt-6">
-                    <p className="font-bold text-gray-900 text-lg">Michael Chen</p>
+                    <p className="font-bold text-gray-900 text-lg">Chindman Ghimire</p>
                     <p className="text-gray-600 mt-1">BSC, 2022</p>
                   </div>
                 </div>
