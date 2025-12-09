@@ -23,7 +23,6 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
       <div>
         <div className="mb-8 pb-4 border-b border-gray-200">
           <h1 className="text-2xl font-bold text-gray-800">Admin Panel</h1>
-          <p className="text-xs text-gray-500 mt-1">Content Management</p>
         </div>
 
         <nav className="space-y-2">

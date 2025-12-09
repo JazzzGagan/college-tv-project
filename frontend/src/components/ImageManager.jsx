@@ -27,6 +27,16 @@ const ImageManager = () => {
 
         console.log("Fetched images:", data);
 
+        const imgs = data.images;
+        if (
+          !imgs.leftTop?.length ||
+          !imgs.leftBottom?.length ||
+          !imgs.rightTop?.length ||
+          !imgs.rightBottom?.length
+        ) {
+          showMessage("error", "Failed to load images.");
+        }
+
         setImages({
           leftTop: data.images.leftTop[data.images.leftTop.length - 1] || null,
           leftBottom:
@@ -55,6 +65,12 @@ const ImageManager = () => {
 
   // Save updated images to backend
   const handleSave = async () => {
+    const anyMissing = Object.values(images).some((img) => !img);
+
+    if (anyMissing) {
+      showMessage("error", "Please upload all images before saving.");
+      return; // prevent uploading
+    }
     const formData = new FormData();
 
     Object.entries(images).forEach(([key, file]) => {
