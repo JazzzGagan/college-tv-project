@@ -1,54 +1,82 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { FaTrash } from "react-icons/fa";
+import { FaTrash, FaPlus } from "react-icons/fa";
 
-const MAX_EVENTS = 5;
+const MAX_EVENTS = 10;
+
+const emptyEvent = {
+  _id: null,
+  title: "",
+  description: "",
+  category: "",
+  date: "",
+  time: "",
+  location: "",
+  image: null,
+};
 
 const EventsNewsManager = () => {
-  const [events, setEvents] = useState([
-    {
-      title: "",
-      description: "",
-      category: "",
-      date: "",
-      time: "",
-      location: "",
-      image: null,
-    },
-  ]);
+  //console.log("EventsNeews manager component moundted");
 
+  const [events, setEvents] = useState([emptyEvent]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  const [message, setMessage] = useState({ type: "", text: "" });
+
+  const showMessage = (type, text) => {
+    // console.log(`showMessage called with: ${type} - ${text}`);
+    setMessage({ type, text });
+    setTimeout(() => setMessage({ type: "", text: "" }), 3000);
+  };
+
+  /* FETCH EVENTS */
   useEffect(() => {
-    return () => {
-      events.forEach((item) => {
-        if (item.image && typeof item.image !== "string") {
-          URL.revokeObjectURL(item.image);
-        }
-      });
-    };
-  }, [events]);
+    //console.log("UseEffect: Fetched triggered");
 
+    const fetchEvents = async () => {
+      //console.log("fetchedEvents started");
+
+      try {
+        const res = await axios.get("http://localhost:3000/api/all-events");
+        //console.log(res.data);
+
+        if (Array.isArray(res.data) && res.data.length > 0) {
+          setEvents(
+            res.data.slice(0, MAX_EVENTS).map((ev) => ({
+              ...ev,
+              image: ev.image || null,
+            }))
+          );
+          showMessage("success", "Events loaded successfully");
+        } else {
+          setEvents([emptyEvent]);
+          console.log("No events found");
+          showMessage("error", "No events found");
+        }
+      } catch (err) {
+        console.error(err);
+        setEvents([emptyEvent]);
+        showMessage("error", "Failed to load events");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchEvents();
+  }, []);
+
+  /* HANDLERS */
   const handleAddEvent = () => {
     if (events.length >= MAX_EVENTS) {
-      return alert("Maximum 5 events allowed!");
+      return showMessage("error", "Maximum 10 events allowed");
     }
-    setEvents([
-      ...events,
-      {
-        title: "",
-        description: "",
-        category: "",
-        date: "",
-        time: "",
-        location: "",
-        image: null,
-      },
-    ]);
+    setEvents([...events, { ...emptyEvent }]);
   };
 
   const handleRemoveEvent = (index) => {
-    const updated = [...events];
-    updated.splice(index, 1);
-    setEvents(updated);
+    if (events.length === 1) return;
+    setEvents(events.filter((_, i) => i !== index));
   };
 
   const handleInputChange = (index, field, value) => {
@@ -57,95 +85,98 @@ const EventsNewsManager = () => {
     setEvents(updated);
   };
 
+  /* SAVE EVENTS */
   const handleSave = async () => {
     for (let ev of events) {
       if (
         !ev.title.trim() ||
         !ev.description.trim() ||
-        !ev.category.trim() ||
-        !ev.date.trim() ||
-        !ev.time.trim() ||
+        !ev.category ||
+        !ev.date ||
+        !ev.time ||
         !ev.location.trim()
       ) {
-        return alert("Please fill all required fields!");
+        return showMessage("error", "Please fill all required fields");
       }
     }
 
     const formData = new FormData();
 
-    events.forEach((item, index) => {
-      formData.append(`events[${index}][title]`, item.title);
-      formData.append(`events[${index}][description]`, item.description);
-      formData.append(`events[${index}][category]`, item.category);
-      formData.append(`events[${index}][date]`, item.date);
-      formData.append(`events[${index}][time]`, item.time);
-      formData.append(`events[${index}][location]`, item.location);
+    events.forEach((ev, index) => {
+      formData.append(`events[${index}][title]`, ev.title);
+      formData.append(`events[${index}][description]`, ev.description);
+      formData.append(`events[${index}][category]`, ev.category);
+      formData.append(`events[${index}][date]`, ev.date);
+      formData.append(`events[${index}][time]`, ev.time);
+      formData.append(`events[${index}][location]`, ev.location);
 
-      if (item.image && typeof item.image !== "string") {
-        formData.append(`events[${index}][image]`, item.image);
+      if (ev.image instanceof File) {
+        formData.append(`events[${index}][image]`, ev.image);
       }
     });
 
     try {
-      await axios.post("http://localhost:3000/api/events/upload", formData, {
+      setSaving(true);
+      await axios.post("http://localhost:3000/api/all-events/upload", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-
-      alert("Events saved successfully!");
+      showMessage("success", "Events saved successfully");
     } catch (err) {
       console.error(err);
-      alert("Failed to save events.");
+      showMessage("error", "Failed to save events");
+    } finally {
+      setSaving(false);
     }
   };
 
-  const renderEventBox = (item, index) => {
+  /* RENDER EVENT */
+  const renderEvent = (ev, index) => {
     const preview =
-      item.image && typeof item.image === "string"
-        ? item.image
-        : item.image
-        ? URL.createObjectURL(item.image)
+      typeof ev.image === "string"
+        ? ev.image
+        : ev.image instanceof File
+        ? URL.createObjectURL(ev.image)
         : null;
 
     return (
       <div
         key={index}
-        className="border rounded-xl p-5 bg-white shadow hover:shadow-lg transition"
+        className="bg-white p-5 rounded-xl shadow hover:shadow-lg transition"
       >
-        <div className="flex justify-between mb-3">
-          <h3 className="text-lg font-semibold text-gray-700">
+        {/* Header */}
+        <div className="flex justify-between items-center mb-3">
+          <h3 className="font-semibold text-lg text-gray-700">
             Event {index + 1}
           </h3>
           {events.length > 1 && (
             <button
               onClick={() => handleRemoveEvent(index)}
-              className="px-3 py-1 bg-red-600 flex items-center gap-2 text-white rounded hover:bg-red-700"
+              className="bg-red-600 text-white px-3 py-1 rounded text-sm flex items-center gap-1"
             >
-              <FaTrash size={14} /> Delete
+              <FaTrash /> Delete
             </button>
           )}
         </div>
 
-        <div className="border-2 border-dashed border-gray-300 rounded-lg h-48 flex items-center justify-center bg-gray-50">
+        {/* Image */}
+        <div className="h-48 border-2 rounded flex items-center justify-center bg-gray-50">
           {preview ? (
             <img
               src={preview}
               alt="preview"
-              className="w-full h-full object-cover rounded-lg"
+              className="w-full h-full object-cover rounded"
+              onLoad={() => {
+                if (ev.image instanceof File) URL.revokeObjectURL(preview);
+              }}
             />
           ) : (
-            <div className="flex flex-col items-center">
-              <img
-                src="https://cdn-icons-png.flaticon.com/512/685/685655.png"
-                className="w-12 opacity-40 mb-2"
-                alt="placeholder"
-              />
-              <p className="text-sm text-gray-500">No image uploaded</p>
-            </div>
+            <span className="text-gray-400 text-sm">No image</span>
           )}
         </div>
 
+        {/* Image buttons */}
         <div className="flex gap-3 mt-3 flex-wrap">
-          <label className="flex-1 cursor-pointer bg-blue-600 text-white px-4 py-2 rounded-lg text-center hover:bg-blue-700 min-w-[120px]">
+          <label className="flex-1 bg-blue-600 text-white py-2 rounded text-center cursor-pointer">
             Upload Image
             <input
               type="file"
@@ -159,8 +190,8 @@ const EventsNewsManager = () => {
 
           {preview && (
             <button
-              className="flex-1 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 min-w-[120px]"
               onClick={() => handleInputChange(index, "image", null)}
+              className="flex-1 bg-red-600 text-white py-2 rounded"
             >
               Remove
             </button>
@@ -170,42 +201,45 @@ const EventsNewsManager = () => {
         {/* Inputs */}
         <input
           type="text"
-          placeholder="Event Title"
+          placeholder="Title"
           className="w-full mt-3 p-2 border rounded"
-          value={item.title}
+          value={ev.title}
           onChange={(e) => handleInputChange(index, "title", e.target.value)}
         />
 
         <textarea
           rows={3}
-          placeholder="Event Description"
+          placeholder="Description"
           className="w-full mt-2 p-2 border rounded"
-          value={item.description}
+          value={ev.description}
           onChange={(e) =>
             handleInputChange(index, "description", e.target.value)
           }
         />
 
-        <input
-          type="text"
-          placeholder="Category (Academic / Cultural / Workshop)"
+        <select
           className="w-full mt-2 p-2 border rounded"
-          value={item.category}
+          value={ev.category}
           onChange={(e) => handleInputChange(index, "category", e.target.value)}
-        />
+        >
+          <option value="">Select Category</option>
+          <option value="Academic">Academic</option>
+          <option value="Cultural">Cultural</option>
+          <option value="Workshop">Workshop</option>
+          <option value="Sports">Sports</option>
+        </select>
 
-        {/* Date & Time: stack vertically on small screens */}
-        <div className="flex flex-col sm:flex-row gap-3 mt-2">
+        <div className="flex gap-3 mt-2 flex-col sm:flex-row">
           <input
             type="date"
             className="flex-1 p-2 border rounded"
-            value={item.date}
+            value={ev.date}
             onChange={(e) => handleInputChange(index, "date", e.target.value)}
           />
           <input
             type="time"
             className="flex-1 p-2 border rounded"
-            value={item.time}
+            value={ev.time}
             onChange={(e) => handleInputChange(index, "time", e.target.value)}
           />
         </div>
@@ -214,7 +248,7 @@ const EventsNewsManager = () => {
           type="text"
           placeholder="Location"
           className="w-full mt-2 p-2 border rounded"
-          value={item.location}
+          value={ev.location}
           onChange={(e) => handleInputChange(index, "location", e.target.value)}
         />
       </div>
@@ -223,32 +257,53 @@ const EventsNewsManager = () => {
 
   return (
     <section className="p-5 max-w-[1200px] mx-auto">
-      <div className="flex flex-col sm:flex-row justify-between items-center mb-6 pb-4 border-b gap-4">
+      {/* MESSAGE BAR */}
+      {message.text && (
+        <div
+          className={`mb-4 p-3 rounded-lg text-white text-center font-semibold ${
+            message.type === "error" ? "bg-red-600" : "bg-green-600"
+          }`}
+          style={{ border: "2px solid yellow" }}
+        >
+          {message.text}
+        </div>
+      )}
+
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row justify-between gap-4 mb-6 border-b pb-4">
         <h2 className="text-3xl font-bold text-blue-700">Manage Events</h2>
 
-        <div className="flex flex-wrap gap-3">
+        <div className="flex gap-3 flex-wrap">
           {events.length < MAX_EVENTS && (
             <button
               onClick={handleAddEvent}
-              className="bg-green-600 text-white px-5 py-2 rounded-lg hover:bg-green-700"
+              className="bg-green-600 text-white px-5 py-2 rounded flex items-center gap-2"
             >
-              Add Event
+              <FaPlus /> Add Event
             </button>
           )}
 
           <button
             onClick={handleSave}
-            className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
+            disabled={saving}
+            className="bg-blue-600 text-white px-6 py-2 rounded"
           >
-            Save All
+            {saving ? "Saving..." : "Save All"}
           </button>
         </div>
       </div>
 
-      {/* Grid: 1 column mobile, 2 columns md+ */}
+      {/* Grid of events */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {events.map((item, index) => renderEventBox(item, index))}
+        {events.map(renderEvent)}
       </div>
+
+      {/* Loading text */}
+      {loading && (
+        <p className="text-center text-gray-400 mt-4">
+          Loading events from server...
+        </p>
+      )}
     </section>
   );
 };
