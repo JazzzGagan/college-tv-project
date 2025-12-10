@@ -16,6 +16,7 @@ const EventsNewsManager = () => {
       image: null,
     },
   ]);
+  console.log(events);
 
   useEffect(() => {
     return () => {
@@ -87,7 +88,7 @@ const EventsNewsManager = () => {
     });
 
     try {
-      await axios.post("http://localhost:3000/api/events/upload", formData, {
+      await axios.post("http://localhost:3000/api/event/create-event", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
