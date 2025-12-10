@@ -22,6 +22,8 @@ const VideoManager = () => {
         const res = await axios.get("http://localhost:3000/api/video");
         if (res.data?.videoUrl) {
           setPreviewUrl(res.data.videoUrl);
+        } else {
+          showMessage("error", "No video available on server");
         }
       } catch (err) {
         console.error("Failed to fetch video", err);
