@@ -30,7 +30,6 @@ const EventsNewsManager = () => {
     setTimeout(() => setMessage({ type: "", text: "" }), 3000);
   };
 
-  /* FETCH EVENTS */
   useEffect(() => {
     //console.log("UseEffect: Fetched triggered");
 
@@ -38,8 +37,10 @@ const EventsNewsManager = () => {
       //console.log("fetchedEvents started");
 
       try {
-        const res = await axios.get("http://localhost:3000/api/all-events");
-        //console.log(res.data);
+        const res = await axios.get(
+          "http://localhost:3000/api/event/get-all-event"
+        );
+        console.log("test", res.data);
 
         if (Array.isArray(res.data) && res.data.length > 0) {
           setEvents(
@@ -103,6 +104,7 @@ const EventsNewsManager = () => {
     const formData = new FormData();
 
     events.forEach((ev, index) => {
+      formData.append(`events[${index}][id]`, index);
       formData.append(`events[${index}][title]`, ev.title);
       formData.append(`events[${index}][description]`, ev.description);
       formData.append(`events[${index}][category]`, ev.category);
@@ -117,9 +119,13 @@ const EventsNewsManager = () => {
 
     try {
       setSaving(true);
-      await axios.post("http://localhost:3000/api/all-events/upload", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      await axios.post(
+        "http://localhost:3000/api/event/create-event",
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
       showMessage("success", "Events saved successfully");
     } catch (err) {
       console.error(err);
