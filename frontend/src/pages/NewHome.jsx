@@ -296,10 +296,27 @@ const NewHome = () => {
     </svg>
   );
 
+  const IconPrograms = () => (
+    <svg
+      className="w-7 h-7"
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+      style={{ color: "#023F88" }}
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={1.5}
+        d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+      />
+    </svg>
+  );
+
   const quickLinks = [
     { label: "Events", icon: IconEvents, path: "/events" },
     { label: "Staff", icon: IconStaff, path: "/staff" },
-    { label: "Admissions", icon: IconAdmissions, path: "#" },
+    { label: "Programs", icon: IconPrograms, path: "/programs" },
     { label: "Campus Life", icon: IconCampusLife, path: "#" },
   ];
 
@@ -482,29 +499,25 @@ const NewHome = () => {
 
           {/* Marquee container */}
           <div className="flex-1 overflow-hidden relative">
-            <div
-              className="flex whitespace-nowrap"
-              style={{
-                animation: "marquee 40s linear infinite",
-              }}
-            >
-              {notices.map((notice, index) => (
+            <div className="flex whitespace-nowrap animate-marquee">
+              {/* Show only first 4 notices */}
+              {notices.slice(0, 4).map((notice, index) => (
                 <span
-                  key={index}
-                  className="flex items-center mr-12 "
+                  key={notice.id || index}
+                  className="flex items-center mr-12 flex-shrink-0"
                 >
                   <span className="mr-2">●</span>
-                  <span>{notice.text}</span>
+                  <span>{notice.text || "No notice available."}</span>
                 </span>
               ))}
-           
-              {notices.map((notice, index) => (
+              {/* Duplicate set for seamless loop - positioned right after first set */}
+              {notices.slice(0, 4).map((notice, index) => (
                 <span
-                  key={`dup-${index}`}
-                  className="flex items-center mr-12 "
+                  key={`duplicate-${notice.id || index}`}
+                  className="flex items-center mr-12 flex-shrink-0"
                 >
                   <span className="mr-2">●</span>
-                  <span>{notice.text}</span>
+                  <span>{notice.text || "No notice available."}</span>
                 </span>
               ))}
             </div>
@@ -515,8 +528,17 @@ const NewHome = () => {
         <style>
           {`
       @keyframes marquee {
-        0% { transform: translateX(100%); }
-        100% { transform: translateX(-100%); }
+        0% {
+          transform: translateX(0);
+        }
+        100% {
+          transform: translateX(-50%);
+        }
+      }
+      .animate-marquee {
+        animation: marquee 30s linear infinite;
+        display: inline-flex;
+        will-change: transform;
       }
     `}
         </style>
