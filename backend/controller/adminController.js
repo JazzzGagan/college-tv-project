@@ -1,8 +1,6 @@
 import multer from "multer";
-import { type } from "os";
+import { broadcast } from "../services/seeService.js";
 import path from "path";
-
-let clients = [];
 
 let currentState = {
   images: {
@@ -14,26 +12,6 @@ let currentState = {
   videoUrl: "",
   notices: [],
   description: "",
-};
-
-export const serverSentEvent = async (req, res) => {
-  res.setHeader("Content-Type", "text/event-stream");
-  res.setHeader("Cache-Control", "no-cache");
-  res.setHeader("Connection", "keep-alive");
-  res.flushHeaders();
-
-  res.write(`data: ${JSON.stringify({ message: "connected" })}\n\n`);
-
-  clients.push(res);
-  req.on("close", () => {
-    clients = clients.filter((c) => c !== res);
-  });
-};
-
-const broadcast = (data) => {
-  clients.forEach((client) => {
-    client.write(`data: ${JSON.stringify(data)}\n\n`);
-  });
 };
 
 //@desc Get current images, video, notices
@@ -57,6 +35,9 @@ export const loginAdmin = async (req, res) => {
   }
 };
 
+//@desc upload left and right images
+//@route POST /admin/upload
+//@access Private
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, path.join("media", "images"));
@@ -75,12 +56,9 @@ export const uploadImageMiddleWare = multer({ storage }).fields([
   { name: "rightBottom", maxCount: 1 },
 ]);
 
-//@desc upload left and right images
-//@route POST /admin/upload
-//@access Private
 export const uploadImage = async (req, res) => {
   const { leftTop, leftBottom, rightTop, rightBottom } = req.files || {};
-  console.log(req.files);
+
 
   if (leftTop) {
     const url = `http://localhost:3000/images/${leftTop[0].filename}`;
@@ -113,6 +91,10 @@ export const uploadImage = async (req, res) => {
   });
 };
 
+//@desc upload video
+//@route POST /admin/upload-video
+//@access Private
+
 const storageVideo = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, path.join("media", "video"));
@@ -130,10 +112,6 @@ const uploadVideo = multer({
 });
 
 export const uploadVideoMiddleware = uploadVideo.single("video");
-
-//@desc upload video
-//@route POST /admin/upload-video
-//@access Private
 export const addVideo = async (req, res) => {
   if (!req.file)
     return res.status(400).json({ message: "No video file provided" });
