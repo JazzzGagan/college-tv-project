@@ -25,7 +25,7 @@ const ImageManager = () => {
         const res = await axios.get("http://localhost:3000/api/all-images");
         const data = res.data;
 
-        console.log("Fetched images:", data);
+        // console.log("Fetched images:", data);
 
         const imgs = data.images;
         if (

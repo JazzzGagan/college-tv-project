@@ -78,7 +78,7 @@ const NewHome = () => {
   const videoRef = useRef(null);
 
   console.log("test", leftTop);
-
+ 
   // Video autoplay effect
   useEffect(() => {
     if (videoUrl && videoRef.current) {
