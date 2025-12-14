@@ -17,8 +17,14 @@ const NoticeManager = () => {
       try {
         const res = await axios.get("http://localhost:3000/api/notices");
         console.log(res.data);
-        
-        setNotices(res.data.notices || []);
+
+        // Check if notices is null or empty
+        if (!res.data.notices || res.data.notices.length === 0) {
+          showMessage("error", "No notices found");
+          setNotices([]); // clear notices state if empty or null
+        } else {
+          setNotices(res.data.notices);
+        }
       } catch {
         showMessage("error", "Failed to load notices");
       }
@@ -41,6 +47,7 @@ const NoticeManager = () => {
     try {
       await axios.post("http://localhost:3000/api/update-notices", notices);
       showMessage("success", "Notices upload successfully!");
+      console.log(" are", notices);
     } catch {
       showMessage("error", "Save failed!");
     }
@@ -48,7 +55,7 @@ const NoticeManager = () => {
 
   const deleteNotice = async (id) => {
     try {
-      await axios.delete(`http://localhost:3000/api/delete-notice/${id}`);
+      await axios.post(`http://localhost:3000/api/delete-notice/${id}`);
       setNotices((prev) => prev.filter((n) => n.id !== id));
       showMessage("success", "Notice deleted");
     } catch {

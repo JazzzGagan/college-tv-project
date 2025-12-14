@@ -11,6 +11,7 @@ import {
   deleteImage,
   getVideo,
   getAllNotices,
+  deleteNotice,
 } from "../controller/adminController.js";
 import { Router } from "express";
 import { seeHandler } from "../services/seeService.js";
@@ -22,8 +23,9 @@ router.get("/events", seeHandler);
 router.post("/login", loginAdmin);
 router.post("/upload", uploadImageMiddleWare, uploadImage);
 router.post("/upload-video", uploadVideoMiddleware, addVideo);
-router.post("/update-notices", updateNotices);
+router.post("/update-notices/", updateNotices);
 router.get("/notices", getAllNotices);
+router.post("/delete-notice/:id", deleteNotice);
 router.post("/update-description", updateDescription);
 router.get("/all-images", getAllImages);
 router.post("/delete-image", deleteImage);

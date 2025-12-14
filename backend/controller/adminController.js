@@ -170,6 +170,7 @@ export const deleteVideo = (req, res) => {
 export const updateNotices = async (req, res) => {
   const noticesArray = req.body;
 
+  console.log("Notice are", noticesArray);
   currentState.notices = noticesArray;
 
   broadcast({ type: "notices", notices: currentState.notices });
@@ -182,6 +183,34 @@ export const updateNotices = async (req, res) => {
 //@access Private
 export const getAllNotices = async (req, res) => {
   res.json({ notices: currentState.notices });
+};
+
+export const deleteNotice = async (req, res) => {
+  
+  const { id } = req.params;
+
+  console.log("Delete Params", req.params);
+
+  if (!id) {
+    return res.status(400).json({ message: "Notice id is required" });
+  }
+
+  console.log("Before delete:", currentState.notices.length);
+
+  currentState.notices = currentState.notices.filter(
+    (notices) => String(notices.id) !== String(id)
+  );
+  console.log("After delete:", currentState.notices.length);
+
+  broadcast({
+    type: "notices",
+    notices: currentState.notices,
+  });
+
+  res.json({
+    message: "Notice deleted successfully",
+    notices: currentState.notices,
+  });
 };
 
 //@desc update description
