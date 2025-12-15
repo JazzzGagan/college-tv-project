@@ -8,6 +8,7 @@ import Home from "./pages/Home";
 import NewHome from "./pages/NewHome";
 import CollegeEvents from "./pages/CollegeEvents";
 import Staff from "./pages/Staff";
+import Programs from "./pages/Programs";
 
 const queryClient = new QueryClient();
 
@@ -29,6 +30,7 @@ function App() {
         <Route path="/" element={<NewHome />} />
         <Route path="/events" element={<CollegeEvents />} />
         <Route path="/staff" element={<Staff />} />
+        <Route path="/programs" element={<Programs />} />
         <Route
           path="/admin"
           element={

@@ -7,7 +7,7 @@ import tvRoutes from "./routes/eventRoutes.js";
 const app = express();
 app.use(
   cors({
-    origin: ["http://localhost:5173"],
+    origin: ["http://localhost:5174"],
     methods: ["GET", "POST"],
     credentials: true,
   })

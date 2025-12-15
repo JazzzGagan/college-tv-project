@@ -144,6 +144,8 @@ const NewHome = () => {
         );
         setDescription(data.description || "");
       } catch (err) {
+        console.log(err);
+
         console.log("Using default images - backend not available");
       }
     };
@@ -153,7 +155,7 @@ const NewHome = () => {
     const eventSource = new EventSource("http://localhost:3000/api/events");
     eventSource.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      console.log(data.type);
+      console.log("test");
       switch (data.type) {
         case "images":
           setLeftTop(
@@ -299,7 +301,7 @@ const NewHome = () => {
   const quickLinks = [
     { label: "Events", icon: IconEvents, path: "/events" },
     { label: "Staff", icon: IconStaff, path: "/staff" },
-    { label: "Admissions", icon: IconAdmissions, path: "#" },
+    { label: "Programs", icon: IconAdmissions, path: "/programs" },
     { label: "Campus Life", icon: IconCampusLife, path: "#" },
   ];
 
