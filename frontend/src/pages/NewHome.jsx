@@ -78,7 +78,7 @@ const NewHome = () => {
   const videoRef = useRef(null);
 
   console.log("test", leftTop);
- 
+
   // Video autoplay effect
   useEffect(() => {
     if (videoUrl && videoRef.current) {
@@ -489,24 +489,22 @@ const NewHome = () => {
               }}
             >
               {notices.map((notice, index) => (
-                <span
-                  key={index}
-                  className="flex items-center mr-12 "
-                >
+                <span key={index} className="flex items-center mr-12 ">
                   <span className="mr-2">●</span>
                   <span>{notice.text}</span>
                 </span>
               ))}
-           
-              {notices.map((notice, index) => (
-                <span
-                  key={`dup-${index}`}
-                  className="flex items-center mr-12 "
-                >
-                  <span className="mr-2">●</span>
-                  <span>{notice.text}</span>
-                </span>
-              ))}
+
+              {notices.length >= 3 &&
+                notices.map((notice, index) => (
+                  <span
+                    key={`dup-${index}`}
+                    className="flex items-center mr-12 "
+                  >
+                    <span className="mr-2">●</span>
+                    <span>{notice.text}</span>
+                  </span>
+                ))}
             </div>
           </div>
         </div>
