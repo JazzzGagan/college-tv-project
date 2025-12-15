@@ -59,7 +59,6 @@ export const uploadImageMiddleWare = multer({ storage }).fields([
 export const uploadImage = async (req, res) => {
   const { leftTop, leftBottom, rightTop, rightBottom } = req.files || {};
 
-
   if (leftTop) {
     const url = `http://localhost:3000/images/${leftTop[0].filename}`;
     currentState.images.leftTop.push(url);
@@ -186,7 +185,6 @@ export const getAllNotices = async (req, res) => {
 };
 
 export const deleteNotice = async (req, res) => {
-  
   const { id } = req.params;
 
   console.log("Delete Params", req.params);

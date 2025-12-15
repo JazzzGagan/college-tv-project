@@ -164,7 +164,7 @@ const CollegeEvents = () => {
   };
 
   // Duplicate events for continuous scroll
-  const displayEvents = [...events, ...events];
+  const displayEvents = events.length >= 5 ? [...events, ...events] : events;
   console.log("displai events", displayEvents);
 
   return (
