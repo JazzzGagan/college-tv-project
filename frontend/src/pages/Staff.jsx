@@ -360,7 +360,7 @@ const Staff = () => {
               Meet the dedicated professionals who shape our educational excellence
             </p>
           </div>
-          {/* TV Mode Button */}
+          {/* TV Mode Button/// */}
           <button
             onClick={() => {
               setTvMode(!tvMode);

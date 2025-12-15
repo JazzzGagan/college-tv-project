@@ -6,7 +6,7 @@ const Programs = () => {
   const [time, setTime] = useState("");
   const [date, setDate] = useState("");
 
-  // Clock & Date Update
+  // Clock & Date Update///
   useEffect(() => {
     const update = () => {
       const now = new Date();
