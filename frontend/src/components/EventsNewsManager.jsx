@@ -119,17 +119,19 @@ const EventsNewsManager = () => {
 
     try {
       setSaving(true);
-      await axios.post(
+      const response = await axios.post(
         "http://localhost:3000/api/event/create-event",
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },
         }
       );
+      console.log("Events saved successfully:", response.data);
       showMessage("success", "Events saved successfully");
     } catch (err) {
-      console.error(err);
-      showMessage("error", "Failed to save events");
+      console.error("Error saving events:", err);
+      const errorMessage = err.response?.data?.error || err.message || "Failed to save events";
+      showMessage("error", `Failed to save events: ${errorMessage}`);
     } finally {
       setSaving(false);
     }

@@ -32,10 +32,10 @@ const CollegeEvents = () => {
     return () => clearInterval(timer);
   }, []);
 
-  // Auto-scroll events
+  // Auto-scroll events - only when there are more than 3 events
   useEffect(() => {
     const container = scrollContainerRef.current;
-    if (!container) return;
+    if (!container || events.length <= 3) return;
 
     let scrollPosition = 0;
     const scrollSpeed = 1;
@@ -123,28 +123,40 @@ const CollegeEvents = () => {
         const res = await axios.get(
           "http://localhost:3000/api/event/get-all-event"
         );
-        const fetchedEvents = res.data.event || [];
-        console.log("test", fetchedEvents);
+        console.log("API Response:", res.data);
+        const fetchedEvents = res.data.event || res.data.events || [];
+        console.log("Fetched events:", fetchedEvents);
 
         setEvents(fetchedEvents.length > 0 ? fetchedEvents : fallbackEvents);
       } catch (err) {
-        console.error(err);
-
+        console.error("Error fetching events:", err);
         setEvents(fallbackEvents);
       }
     };
 
     fetchEvents();
-    const eventSource = new EventSource("http://localhost:3000/api/events");
+    
+    // SSE for real-time updates
+    const eventSource = new EventSource("http://localhost:3000/api/event/events");
     eventSource.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      const fetched = data?.events || [];
-      setEvents(fetched.length > 0 ? fetched : fallbackEvents);
+      try {
+        const data = JSON.parse(event.data);
+        console.log("SSE data received:", data);
+        
+        // Handle both singular and plural event keys
+        const fetched = data?.events || data?.event || [];
+        if (fetched.length > 0) {
+          console.log("Updating events from SSE:", fetched);
+          setEvents(fetched);
+        }
+      } catch (parseError) {
+        console.error("Error parsing SSE data:", parseError);
+      }
     };
 
     eventSource.onerror = (err) => {
       console.log("SSE connection error", err);
-      eventSource.close();
+      // Don't close on error, let it reconnect
     };
 
     return () => {
@@ -195,9 +207,11 @@ const CollegeEvents = () => {
     return colors[category] || "#023F88";
   };
 
-  // Duplicate events for continuous scroll
-  const displayEvents = [...events, ...events];
-  console.log("displai events", displayEvents);
+  // Duplicate events for continuous scroll only when there are more than 3 events
+  const displayEvents = events.length > 3 ? [...events, ...events] : events;
+  console.log("Events state:", events);
+  console.log("Display events count:", displayEvents.length);
+  console.log("Should scroll:", events.length > 3);
 
   return (
     <div
@@ -251,7 +265,7 @@ const CollegeEvents = () => {
           </h1>
         </div>
 
-          {/* Events Row - Horizontal Scroll */}
+        {/* Events Row - Horizontal Scroll */}
         {events.length === 0 ? (
           <div className="flex-1 flex items-center justify-center text-gray-500 text-lg">
             No upcoming events at the moment.
@@ -259,14 +273,23 @@ const CollegeEvents = () => {
         ) : (
           <div
             ref={scrollContainerRef}
-            className="flex-1 overflow-x-hidden pb-2 scrollbar-hide"
+            className={`flex-1 pb-2 scrollbar-hide ${
+              events.length > 3 ? "overflow-x-hidden" : "overflow-x-auto"
+            }`}
             style={{ scrollBehavior: "auto" }}
           >
             <div
-              className="flex gap-2 h-full items-center"
-              style={{ minWidth: "max-content" }}
+              className={`flex gap-2 h-full items-center ${
+                events.length <= 3 ? "justify-center" : ""
+              }`}
+              style={{ minWidth: events.length > 3 ? "max-content" : "auto" }}
             >
-              {displayEvents.map((event, index) => (
+              {displayEvents.map((event, index) => {
+                if (!event) {
+                  console.warn("Undefined event at index:", index);
+                  return null;
+                }
+                return (
                 <div
                   key={`${event?.id ?? index}-${index}`}
                   className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 border border-gray-100 group flex-shrink-0 mb-4"
@@ -327,7 +350,8 @@ const CollegeEvents = () => {
                     </div>
                   </div>
                 </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}
