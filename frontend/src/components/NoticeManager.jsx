@@ -26,7 +26,7 @@ const NoticeManager = () => {
           setNotices(res.data.notices);
         }
       } catch {
-        showMessage("error", "Failed to load notices");
+        showMessage("error", "No Notice found");
       }
     };
     fetchNotices();
@@ -55,7 +55,7 @@ const NoticeManager = () => {
 
   const deleteNotice = async (id) => {
     try {
-      await axios.post(`http://localhost:3000/api/delete-notice/${id}`);
+      await axios.delete(`http://localhost:3000/api/delete-notice/${id}`);
       setNotices((prev) => prev.filter((n) => n.id !== id));
       showMessage("success", "Notice deleted");
     } catch {
@@ -81,11 +81,11 @@ const NoticeManager = () => {
 
   return (
     <section className="tab-content">
-      {/* MESSAGE BOX */}
+      {/* message field for success or error*/}
       {message.text && (
         <div
           className={`p-3 mb-4 rounded-lg text-white text-center ${
-            message.type === "error" ? "bg-red-500" : "bg-green-600"
+            message.type === "error" ? "bg-blue-500" : "bg-green-600"
           }`}
         >
           {message.text}
@@ -127,7 +127,7 @@ const NoticeManager = () => {
         ))}
       </div>
 
-      {/* INPUT FOR ADD/EDIT */}
+      {/* input field for add or edit */}
       <div className="mt-6 bg-gray-50 p-4 rounded-lg">
         <input
           type="text"

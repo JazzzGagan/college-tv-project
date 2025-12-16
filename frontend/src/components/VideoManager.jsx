@@ -15,7 +15,7 @@ const VideoManager = () => {
     setTimeout(() => setMessage({ type: "", text: "" }), 3000);
   };
 
-  // LOAD CURRENT VIDEO
+  // Fetch current video
   useEffect(() => {
     const fetchVideo = async () => {
       try {
@@ -23,17 +23,17 @@ const VideoManager = () => {
         if (res.data?.videoUrl) {
           setPreviewUrl(res.data.videoUrl);
         } else {
-          showMessage("error", "No video available on server");
+          showMessage("error", "No video found");
         }
       } catch (err) {
         console.error("Failed to fetch video", err);
-        showMessage("error", "Failed to load video");
+        showMessage("error", "No videos found");
       }
     };
     fetchVideo();
   }, []);
 
-  // UPLOAD OR REPLACE VIDEO
+  // Upload or replace a video
   const handleUpload = async () => {
     if (!selectedVideo) {
       showMessage("error", "No video selected");
@@ -68,7 +68,7 @@ const VideoManager = () => {
     }
   };
 
-  // DELETE VIDEO
+  // delete video
   const handleDelete = async () => {
     try {
       await axios.delete("http://localhost:3000/api/video");
@@ -88,7 +88,7 @@ const VideoManager = () => {
       {message.text && (
         <div
           className={`mb-4 p-2 rounded-lg text-white text-center ${
-            message.type === "error" ? "bg-red-500" : "bg-green-600"
+            message.type === "error" ? "bg-blue-500" : "bg-green-600"
           }`}
         >
           {message.text}

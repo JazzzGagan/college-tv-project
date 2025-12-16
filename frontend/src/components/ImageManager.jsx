@@ -12,13 +12,13 @@ const ImageManager = () => {
   // Message state for success/error messages
   const [message, setMessage] = useState({ type: "", text: "" });
 
-  // Show message with type (success or error)
+  // Show message for error or success
   const showMessage = (type, text) => {
     setMessage({ type, text });
     setTimeout(() => setMessage({ type: "", text: "" }), 3000);
   };
 
-  // Fetch current images from backend on component mount
+  // Fetch current images from backend when api called
   useEffect(() => {
     const fetchImages = async () => {
       try {
@@ -47,7 +47,7 @@ const ImageManager = () => {
             data.images.rightBottom[data.images.rightBottom.length - 1] || null,
         });
       } catch (err) {
-        showMessage("error", "Failed to load images");
+        showMessage("error", "No images found");
         console.error(err);
       }
     };
@@ -69,7 +69,7 @@ const ImageManager = () => {
 
     if (anyMissing) {
       showMessage("error", "Please upload all images before saving.");
-      return; // prevent uploading
+      return;
     }
     const formData = new FormData();
 
@@ -187,11 +187,11 @@ const ImageManager = () => {
 
   return (
     <section className="tab-content">
-      {/* Global message */}
+      {/* Show message for error or success */}
       {message.text && (
         <div
           className={`mb-4 p-2 rounded-lg text-white text-center font-semibold ${
-            message.type === "error" ? "bg-red-600" : "bg-green-600"
+            message.type === "error" ? "bg-blue-600" : "bg-green-600"
           }`}
         >
           {message.text}
