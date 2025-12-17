@@ -3,7 +3,6 @@ import logo from "../assets/images.png";
 import { Link } from "react-router-dom";
 
 const NewHome = () => {
-  // Default placeholder images - University themed
   const universityImages = [
     "https://images.unsplash.com/photo-1562774053-701939374585?w=800&h=600&fit=crop", // University campus building
     "https://images.unsplash.com/photo-1509062522246-3755977927d7?w=800&h=600&fit=crop", // Students studying in library
@@ -15,7 +14,6 @@ const NewHome = () => {
     "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=800&h=600&fit=crop", // Campus study area
   ];
 
-  // Randomly select different images for left and right
   const getRandomImages = () => {
     const shuffled = [...universityImages].sort(() => 0.5 - Math.random());
     return {
@@ -77,9 +75,6 @@ const NewHome = () => {
     "https://www.youtube.com/embed/WuQufuY3UBg?autoplay=1&mute=1&loop=1&playlist=WuQufuY3UBg&controls=1&rel=0";
   const videoRef = useRef(null);
 
-  console.log("test", leftTop);
-
-  // Video autoplay effect
   useEffect(() => {
     if (videoUrl && videoRef.current) {
       videoRef.current.load();
@@ -112,7 +107,6 @@ const NewHome = () => {
     return () => clearInterval(timer);
   }, []);
 
-  // Fetch current state + SSE
   useEffect(() => {
     const fetchCurrentState = async () => {
       try {
@@ -406,6 +400,7 @@ const NewHome = () => {
               src={videoUrl}
               autoPlay
               loop
+              
               controls
               className="w-full h-full object-cover"
             />
