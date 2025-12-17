@@ -1,18 +1,8 @@
 import multer from "multer";
 import { broadcast } from "../services/seeService.js";
 import path from "path";
-
-let currentState = {
-  images: {
-    leftTop: [],
-    leftBottom: [],
-    rightTop: [],
-    rightBottom: [],
-  },
-  videoUrl: "",
-  notices: [],
-  description: "",
-};
+import { saveStateHome } from "../services/stateServices.js";
+import { currentState } from "../services/stateServices.js";
 
 //@desc Get current images, video, notices
 //@route GET /current-state
@@ -78,16 +68,22 @@ export const uploadImage = async (req, res) => {
     currentState.images.rightBottom.push(url);
   }
 
-  // Broadcast update to clients (SSE)
-  broadcast({
-    type: "images",
-    images: currentState.images,
-  });
+  try {
+    await saveStateHome();
 
-  res.json({
-    images: currentState.images,
-    message: "Images uploaded successfully",
-  });
+    broadcast({
+      type: "images",
+      images: currentState.images,
+    });
+
+    res.json({
+      images: currentState.images,
+      message: "Images uploaded successfully",
+    });
+  } catch (error) {
+    console.error("Failed to save state:", error);
+    res.status(500).json({ message: "Failed to save images" });
+  }
 };
 
 //@desc upload video
@@ -127,13 +123,16 @@ export const addVideo = async (req, res) => {
     }
   }
 
-  // SAVE NEW VIDEO URL
   currentState.videoUrl = newVideoUrl;
+  try {
+    await saveStateHome();
+    broadcast({ type: "video", videoUrl: newVideoUrl });
 
-  // SSE BROADCAST
-  broadcast({ type: "video", videoUrl: newVideoUrl });
-
-  res.json({ message: "Video replaced successfully", videoUrl: newVideoUrl });
+    res.json({ message: "Video replaced successfully", videoUrl: newVideoUrl });
+  } catch (error) {
+    console.error("Failed to save state:", error);
+    res.status(500).json({ message: "Failed to save video" });
+  }
 };
 
 // GET VIDEO
@@ -141,7 +140,7 @@ export const getVideo = (req, res) => {
   res.json({ videoUrl: currentState.videoUrl });
 };
 
-export const deleteVideo = (req, res) => {
+export const deleteVideo = async (req, res) => {
   const filename = req.params.fielename;
 
   const filePath = path.join("media/video", filename);
@@ -158,9 +157,15 @@ export const deleteVideo = (req, res) => {
     (url) => !url.endsWith("/" + filename)
   );
 
-  broadcast({ type: "delete_video", filename });
+  try {
+    await saveStateHome();
+    broadcast({ type: "delete_video", filename });
 
-  res.json({ message: "Video deleted Successfully" });
+    res.json({ message: "Video deleted Successfully" });
+  } catch (error) {
+    console.error("Failed to save state:", error);
+    res.status(500).json({ message: "Failed to delete video" });
+  }
 };
 
 //@desc update notices
@@ -172,9 +177,15 @@ export const updateNotices = async (req, res) => {
   console.log("Notice are", noticesArray);
   currentState.notices = noticesArray;
 
-  broadcast({ type: "notices", notices: currentState.notices });
+  try {
+    await saveStateHome();
+    broadcast({ type: "notices", notices: currentState.notices });
 
-  res.json({ message: "Notices updated", notices: currentState.notices });
+    res.json({ message: "Notices updated", notices: currentState.notices });
+  } catch (error) {
+    console.error("Failed to save state:", error);
+    res.status(500).json({ message: "Failed to upload notices" });
+  }
 };
 
 //@desc get all notices
@@ -200,15 +211,21 @@ export const deleteNotice = async (req, res) => {
   );
   console.log("After delete:", currentState.notices.length);
 
-  broadcast({
-    type: "notices",
-    notices: currentState.notices,
-  });
+  try {
+    await saveStateHome();
+    broadcast({
+      type: "notices",
+      notices: currentState.notices,
+    });
 
-  res.json({
-    message: "Notice deleted successfully",
-    notices: currentState.notices,
-  });
+    res.json({
+      message: "Notice deleted successfully",
+      notices: currentState.notices,
+    });
+  } catch (error) {
+    console.error("Failed to save state:", error);
+    res.status(500).json({ message: "Failed to delete notices" });
+  }
 };
 
 //@desc update description
@@ -224,12 +241,18 @@ export const updateDescription = async (req, res) => {
 
   currentState.description = description || "";
 
-  broadcast({ type: "description", description: currentState.description });
+  try {
+    await saveStateHome();
+    broadcast({ type: "description", description: currentState.description });
 
-  res.json({
-    message: "Description updated successfully",
-    description: currentState.description,
-  });
+    res.json({
+      message: "Description updated successfully",
+      description: currentState.description,
+    });
+  } catch (error) {
+    console.error("Failed to save state:", error);
+    res.status(500).json({ message: "Failed to update description" });
+  }
 };
 
 //@desc get all images
@@ -257,6 +280,12 @@ export const deleteImage = async (req, res) => {
   currentState.images[key] = currentState.images[key].filter(
     (img) => img !== url
   );
-  broadcast({ type: "images", images: currentState.images });
-  res.json({ message: "Image deleted", images: currentState.images });
+  try {
+    await saveStateHome();
+    broadcast({ type: "images", images: currentState.images });
+    res.json({ message: "Image deleted", images: currentState.images });
+  } catch (error) {
+    console.error("Failed to save state:", error);
+    res.status(500).json({ message: "Failed to delete image" });
+  }
 };

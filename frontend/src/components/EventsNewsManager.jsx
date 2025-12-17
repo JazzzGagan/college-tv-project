@@ -24,6 +24,8 @@ const EventsNewsManager = () => {
 
   const [message, setMessage] = useState({ type: "", text: "" });
 
+  console.log("test", events);
+
   const showMessage = (type, text) => {
     // console.log(`showMessage called with: ${type} - ${text}`);
     setMessage({ type, text });
@@ -40,13 +42,14 @@ const EventsNewsManager = () => {
         const res = await axios.get(
           "http://localhost:3000/api/event/get-all-event"
         );
-        console.log("test", res.data);
+        const events = res.data.event;
+        console.log(events);
 
-        if (Array.isArray(res.data) && res.data.length > 0) {
+        if (Array.isArray(events) && events.length > 0) {
           setEvents(
-            res.data.slice(0, MAX_EVENTS).map((ev) => ({
+            events.slice(0, MAX_EVENTS).map((ev) => ({
               ...ev,
-              image: ev.image || null,
+              image: ev.imageUrl || null,
             }))
           );
           showMessage("success", "Events loaded successfully");
