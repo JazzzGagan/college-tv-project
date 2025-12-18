@@ -142,3 +142,7 @@ node_modules/
 media
 
 .DS_Store
+*.docx
+*.docx
+Assets/Images/EventImages/
+Assets/video/

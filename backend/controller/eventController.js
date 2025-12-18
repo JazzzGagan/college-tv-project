@@ -1,13 +1,13 @@
 import multer from "multer";
 import { broadcast } from "../services/seeService.js";
 import path from "path";
-import { v4 as uuidV4 } from "uuid";
-import fs from "fs";
+import { eventState, saveStateEvent } from "../services/eventService.js";
+import EventState from "../models/eventModel.js";
 
 //@desc Upload College Events
 //@route POST /add-event
 //access PRIVATE
-let eventState = [];
+
 const eventStorage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, path.join("media", "EventImages"));
@@ -19,33 +19,43 @@ const eventStorage = multer.diskStorage({
   },
 });
 
-export const uploadEventMiddleWare = multer({
-  storage: eventStorage,
-}).single("image");
+export const uploadEventMiddleWare = multer({ storage: eventStorage }).any();
 
 export const collegEvents = async (req, res) => {
-  try {
-    const event = req.body;
+  const { events } = req.body;
+  console.log("events from frontend", events);
 
-    event._id = uuidV4();
-    if (req.file) {
-      event.imageUrl = `http://localhost:3000/EventImages/${req.file.filename}`;
+  eventState.length = 0;
+  eventState.push(...events);
+
+  events.forEach((event) => {
+    if (req.files && req.files.length > 0) {
+      const file = req.files[`${event.id}`];
+
+      if (eventState[`${event.id}`]) {
+        eventState[
+          `${event.id}`
+        ].imageUrl = `http://localhost:3000/EventImages/${file.filename}`;
+      }
     }
+  });
 
-    eventState.push(event);
-
-    console.log("Saved event:", event);
-    res.json({ event });
+  console.log("saved events", eventState);
+  try {
+    await saveStateEvent();
 
     broadcast({ type: "event", events: eventState });
-  } catch (err) {
-    console.error(err);
+    res.json({ events: eventState });
+  } catch (error) {
+    console.error("Failed to save state:", error);
     res.status(500).json({ message: "Failed to save event" });
   }
 };
 
 export const getAllEvents = async (req, res) => {
-  res.json({ events: eventState });
+  const state = await EventState.findOne();
+
+  res.json({ event: state?.events || [] });
 };
 
 export const deleteEvent = async (req, res) => {
@@ -134,9 +144,8 @@ export const updateEvent = async (req, res) => {
       return res.status(404).json({ message: "Event not found" });
     }
 
-    // If there's a file uploaded, update the image URL (assuming you generate URL after saving file)
+    // If there's a file uploaded
     if (req.file) {
-      // Example: Assuming you save file and build a URL for it
       const imageUrl = `http://localhost:3000/EventImages/${req.file.filename}`;
       updatedEventData.imageUrl = imageUrl;
     }
@@ -153,4 +162,7 @@ export const updateEvent = async (req, res) => {
     console.error(err);
     res.status(500).json({ message: "Failed to update event" });
   }
+  const state = await EventState.findOne();
+
+  res.json({ event: state?.events || [] });
 };

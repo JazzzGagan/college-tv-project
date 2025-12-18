@@ -23,6 +23,8 @@ const EventsNewsManager = () => {
   const [message, setMessage] = useState({ type: "", text: "" });
   const [validationErrors, setValidationErrors] = useState(new Set());
 
+  console.log("test", events);
+
   const showMessage = (type, text) => {
     setMessage({ type, text });
     setTimeout(() => setMessage({ type: "", text: "" }), 3000);
@@ -34,12 +36,14 @@ const EventsNewsManager = () => {
         const res = await axios.get(
           "http://localhost:3000/api/event/get-all-event"
         );
-        if (Array.isArray(res.data.events) && res.data.events.length > 0) {
+        const events = res.data.event;
+        console.log(events);
+
+        if (Array.isArray(events) && events.length > 0) {
           setEvents(
-            res.data.events.slice(0, MAX_EVENTS).map((ev) => ({
+            events.slice(0, MAX_EVENTS).map((ev) => ({
               ...ev,
               image: ev.imageUrl || null,
-              isNew: false,
             }))
           );
         } else {
