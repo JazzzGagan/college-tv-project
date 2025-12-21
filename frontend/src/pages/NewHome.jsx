@@ -361,7 +361,7 @@ const NewHome = () => {
       <div className="flex-1 flex gap-4 p-6 overflow-hidden bg-gray-200">
         {/* Left Sidebar */}
         <div className="w-1/4 flex flex-col gap-4">
-          <div className="flex-1 rounded-lg overflow-hidden shadow-md bg-white">
+          <div className="flex-1 rounded-2xl overflow-hidden shadow-md bg-white">
             {leftTop ? (
               <img
                 src={leftTop}
@@ -375,7 +375,7 @@ const NewHome = () => {
             )}
           </div>
           <div
-            className="flex-1 rounded-lg overflow-hidden bg-white group animate-fade-in"
+            className="flex-1 rounded-2xl overflow-hidden bg-white group animate-fade-in"
             style={{ animationDelay: "0.2s" }}
           >
             {leftBottom ? (
@@ -393,14 +393,13 @@ const NewHome = () => {
         </div>
 
         {/* Center Video */}
-        <div className="w-1/2 rounded-lg overflow-hidden shadow-lg bg-black relative">
+        <div className="w-1/2 rounded-2xl overflow-hidden shadow-lg bg-black relative">
           {videoUrl ? (
             <video
               ref={videoRef}
               src={videoUrl}
               autoPlay
               loop
-              
               controls
               className="w-full h-full object-cover"
             />
@@ -435,7 +434,7 @@ const NewHome = () => {
 
         {/* Right Sidebar */}
         <div className="w-1/4 flex flex-col gap-4">
-          <div className="flex-1 rounded-lg overflow-hidden shadow-md bg-white">
+          <div className="flex-1 rounded-2xl overflow-hidden shadow-md bg-white">
             {rightTop ? (
               <img
                 src={rightTop}
@@ -449,7 +448,7 @@ const NewHome = () => {
             )}
           </div>
           <div
-            className="flex-1 rounded-lg overflow-hidden bg-white group animate-fade-in"
+            className="flex-1 rounded-2xl overflow-hidden bg-white group animate-fade-in"
             style={{ animationDelay: "0.3s" }}
           >
             {rightBottom ? (

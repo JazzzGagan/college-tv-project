@@ -288,7 +288,7 @@ const Programs = () => {
           {programs.map((program, index) => (
             <div
               key={program.id}
-              className="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 group"
+              className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 group"
               style={{
                 animation: `fadeIn 0.6s ease-in ${index * 0.1}s both`,
               }}

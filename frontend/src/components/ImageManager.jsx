@@ -140,14 +140,16 @@ const ImageManager = () => {
 
     return (
       <div className="border-2 border-gray-300 rounded-xl p-6 text-center w-full bg-white shadow-md hover:shadow-lg transition-all duration-200">
-        <h3 className="text-lg font-semibold mb-4 text-gray-700">{label}</h3>
+        <h3 className="text-xl font-semibold mb-4 text-[#3a3a3a] hover:cursor-pointer">
+          {label}
+        </h3>
 
-        <div className="w-full h-56 flex items-center justify-center border-2 border-dashed border-gray-300 rounded-lg bg-gray-50">
+        <div className="w-full h-56 flex items-center justify-center border-2 border-dashed border-gray-300 rounded-2xl bg-gray-50 hover:cursor-pointer">
           {preview ? (
             <img
               src={preview}
               alt={label}
-              className="w-full h-full object-cover rounded-lg"
+              className="w-full h-full object-cover rounded-2xl"
               onLoad={() => {
                 if (typeof file !== "string") URL.revokeObjectURL(preview);
               }}
@@ -157,8 +159,8 @@ const ImageManager = () => {
           )}
         </div>
 
-        <div className="mt-4 flex flex-col sm:flex-row justify-center gap-2">
-          <label className="cursor-pointer bg-blue-600 text-white px-4 py-2 rounded-lg">
+        <div className="mt-4 flex flex-col sm:flex-row justify-center gap-3">
+          <label className="cursor-pointer w-32 text-center bg-blue-600 text-white px-4 py-2 rounded-xl font-semibold transition-all duration-300 ease-in-out transform hover:scale-105 hover:bg-blue-700 hover:shadow-md ">
             Upload
             <input
               type="file"
@@ -175,7 +177,7 @@ const ImageManager = () => {
           {preview && (
             <button
               onClick={() => handleDelete(key)}
-              className="bg-red-600 text-white px-4 py-2 rounded-lg"
+              className="w-32 bg-red-500 text-white px-4 py-2 rounded-xl font-semibold hover:bg-red-600 hover:shadow-md cursor-pointer transition-all duration-300 ease-in-out transform hover:scale-105 "
             >
               Delete
             </button>
@@ -200,19 +202,18 @@ const ImageManager = () => {
 
       <div className="flex justify-between items-center mb-6 pb-4 border-b border-gray-200">
         <div>
-          <h2 className="text-3xl font-bold text-red-600 mb-1">
+          <h2 className="text-3xl font-bold text-[#2743fd] mb-1">
             Image Management
           </h2>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-[#3a3a3a]">
             Upload and manage left and right side images
           </p>
         </div>
-
         <button
           onClick={handleSave}
-          className="bg-blue-600 text-white px-6 py-2.5 rounded-lg hover:bg-blue-700 transition"
+          className=" bg-[#2743fd] text-white px-6 py-2.5 rounded-2xl font-semibold shadow-md hover:shadow-lg transition-all duration-300 ease-in-out transform hover:scale-105 hover:bg-blue-700 cursor-pointer "
         >
-          💾 Save Changes
+          Save Changes
         </button>
       </div>
 

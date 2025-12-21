@@ -5,7 +5,7 @@ import {
   getAllEvents,
   deleteEvent,
   deleteAllEvents,
-  updateEvent,
+  //updateEvent,
 } from "../controller/eventController.js";
 import { seeHandler } from "../services/seeService.js";
 
@@ -16,6 +16,6 @@ router.get("/get-all-event", getAllEvents);
 router.get("/events", seeHandler);
 router.delete("/delete-event/:id", deleteEvent);
 router.delete("/delete-all-events", deleteAllEvents);
-router.put("/update-event/:id", uploadEventMiddleWare, updateEvent);
+//router.put("/update-event/:id", uploadEventMiddleWare, updateEvent);
 
 export default router;

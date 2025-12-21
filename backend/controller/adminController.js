@@ -3,6 +3,7 @@ import { broadcast } from "../services/seeService.js";
 import path from "path";
 import { saveStateHome } from "../services/stateServices.js";
 import { currentState } from "../services/stateServices.js";
+import fs from "fs";
 
 //@desc Get current images, video, notices
 //@route GET /current-state

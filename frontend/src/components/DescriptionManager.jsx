@@ -73,7 +73,7 @@ const DescriptionManager = () => {
 
         <button
           onClick={saveChanges}
-          className="bg-blue-600 text-white px-6 py-2.5 rounded-lg hover:bg-blue-700 transition-all duration-200 shadow-md hover:shadow-lg font-semibold transform hover:scale-105"
+          className="bg-blue-600 text-white px-6 py-2.5 rounded-2xl hover:bg-blue-700 transition-all duration-200 shadow-md hover:shadow-lg font-semibold transform hover:scale-105"
         >
           💾 Save Changes
         </button>
@@ -89,7 +89,7 @@ const DescriptionManager = () => {
             onChange={handleDescriptionChange}
             placeholder="Enter description text..."
             rows={12}
-            className="w-full border-2 border-blue-300 rounded-lg px-4 py-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 shadow-sm"
+            className="w-full border-2 border-blue-300 rounded-2xl px-4 py-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 shadow-sm"
           />
           <p className="mt-3 text-xs text-gray-500 flex items-center">
             <span className="mr-1">ℹ️</span>
@@ -99,7 +99,7 @@ const DescriptionManager = () => {
         </div>
 
         {description && (
-          <div className="bg-blue-50 border-l-4 border-blue-500 p-5 rounded-lg shadow-md">
+          <div className="bg-blue-50 border-l-4 border-blue-500 p-5 rounded-2xl shadow-md">
             <h3 className="text-sm font-semibold mb-3 text-blue-800 flex items-center">
               <span className="mr-2">👁️</span>
               Preview:
@@ -111,7 +111,7 @@ const DescriptionManager = () => {
         )}
 
         {!description && (
-          <div className="bg-gray-50 border-2 border-dashed border-gray-300 p-5 rounded-lg">
+          <div className="bg-gray-50 border-2 border-dashed border-gray-300 p-5 rounded-2xl">
             <p className="text-gray-500 text-sm italic flex items-center justify-center">
               <span className="mr-2">📝</span>
               No description set. Enter text above to add a description.

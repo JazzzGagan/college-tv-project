@@ -84,7 +84,7 @@ const NoticeManager = () => {
       {/* message field for success or error*/}
       {message.text && (
         <div
-          className={`p-3 mb-4 rounded-lg text-white text-center ${
+          className={`p-3 mb-4 rounded-2xl text-white text-center ${
             message.type === "error" ? "bg-blue-500" : "bg-green-600"
           }`}
         >
@@ -93,13 +93,13 @@ const NoticeManager = () => {
       )}
 
       <div className="flex justify-between items-center mb-6 border-b pb-4">
-        <h2 className="text-3xl font-bold text-red-600">Notice Management</h2>
+        <h2 className="text-3xl font-bold text-[#2743fd]">Notice Management</h2>
 
         <button
           onClick={saveChanges}
-          className="bg-blue-600 text-white px-6 py-2 rounded-lg"
+          className=" bg-[#2743fd] text-white px-6 py-2.5 rounded-2xl font-semibold shadow-md hover:shadow-lg transition-all duration-300 ease-in-out transform hover:scale-105 hover:bg-blue-700 cursor-pointer "
         >
-          💾 Save Changes
+          Save Changes
         </button>
       </div>
 
@@ -107,18 +107,21 @@ const NoticeManager = () => {
         {notices.map((n, i) => (
           <div
             key={n.id}
-            className="bg-orange-50 border-l-4 border-red-600 p-4 flex justify-between rounded-lg"
+            className="bg-orange-50 border-l-4 border-red-600 p-4 flex justify-between rounded-2xl hover:bg-orange-200"
           >
             <span>{n.text}</span>
 
             <div className="flex gap-3">
-              <button onClick={() => editNotice(i)} className="text-blue-600">
+              <button
+                onClick={() => editNotice(i)}
+                className="text-blue-600 hover:cursor-pointer hover:font-semibold"
+              >
                 Edit
               </button>
 
               <button
                 onClick={() => deleteNotice(n.id)}
-                className="text-red-600"
+                className="text-red-600 hover:cursor-pointer hover:font-semibold"
               >
                 Delete
               </button>
@@ -128,26 +131,26 @@ const NoticeManager = () => {
       </div>
 
       {/* input field for add or edit */}
-      <div className="mt-6 bg-gray-50 p-4 rounded-lg">
+      <div className="mt-6 bg-gray-50 p-4 rounded-2xl">
         <input
           type="text"
           value={newNoticeText}
           onChange={(e) => setNewNoticeText(e.target.value)}
-          className="border p-2 rounded w-full mb-3"
+          className="border p-2 rounded w-full mb-3 hover:border-amber-500 hover:cursor-pointer"
           placeholder="Write notice here..."
         />
 
         {editIndex !== null ? (
           <button
             onClick={updateNotice}
-            className="bg-blue-600 text-white px-6 py-2 rounded-lg"
+            className="bg-blue-600 text-white px-6 py-3 rounded-2xl hover:cursor-pointer transition-all duration-300 ease-in-out transform hover:scale-105"
           >
             Update Notice
           </button>
         ) : (
           <button
             onClick={addNotice}
-            className="bg-red-600 text-white px-6 py-2 rounded-lg"
+            className="bg-red-600 text-white px-6 py-3 rounded-2xl transition-all duration-300 ease-in-out transform hover:scale-105 hover:cursor-pointer "
           >
             Add Notice
           </button>

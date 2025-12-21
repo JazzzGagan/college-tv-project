@@ -1,6 +1,7 @@
 import multer from "multer";
 import { broadcast } from "../services/seeService.js";
 import path from "path";
+import fs from "fs";
 import { eventState, saveStateEvent } from "../services/eventService.js";
 import EventState from "../models/eventModel.js";
 
@@ -30,11 +31,20 @@ export const collegEvents = async (req, res) => {
 
   events.forEach((event) => {
     if (req.files && req.files.length > 0) {
-      const file = req.files[`${event.id}`];
+      //const file = req.files[`${event.id}`];
+      const file = req.files.find((f) =>
+        f.fieldname.includes(`[${event.id}][image]`)
+      );
 
-      if (eventState[`${event.id}`]) {
+      // if (eventState[`${event.id}`]) {
+      //   eventState[
+      //     `${event.id}`
+      //   ].imageUrl = `http://localhost:3000/EventImages/${file.filename}`;
+      // }
+
+      if (file && eventState[event.id]) {
         eventState[
-          `${event.id}`
+          event.id
         ].imageUrl = `http://localhost:3000/EventImages/${file.filename}`;
       }
     }
@@ -58,71 +68,33 @@ export const getAllEvents = async (req, res) => {
   res.json({ event: state?.events || [] });
 };
 
-export const deleteEvent = async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    console.log("Backend received delete request for id:", id);
-
-    if (!id) return res.status(400).json({ message: "Event id required" });
-
-    // Find the event first to get its image URL
-    const eventToDelete = eventState.find((ev) => ev._id === id);
-    if (!eventToDelete) {
-      console.log("Event not found for id:", id);
-      return res.status(404).json({ message: "Event not found" });
-    }
-
-    // Delete image file if exists
-    if (eventToDelete.imageUrl) {
-      const filename = path.basename(eventToDelete.imageUrl);
-      const filepath = path.join("media", "EventImages", filename);
-
-      // Delete file asynchronously, but don't block the response
-      fs.unlink(filepath, (err) => {
-        if (err) {
-          console.error("Failed to delete image file:", filepath, err);
-        } else {
-          console.log("Deleted image file:", filepath);
-        }
-      });
-    }
-
-    // Remove event from array
-    eventState = eventState.filter((ev) => ev._id !== id);
-
-    console.log("Event deleted successfully", id);
-
-    res.json({ message: "Event deleted successfully" });
-    broadcast({ type: "event", events: eventState });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Failed to delete event" });
-  }
-};
-
 export const deleteAllEvents = async (req, res) => {
   try {
-    // Delete all image files before clearing eventState
-    for (const event of eventState) {
+    const state = await EventState.findOne();
+
+    if (!state || !Array.isArray(state.events)) {
+      return res.json({ message: "No events to delete" });
+    }
+
+    // Delete image files
+    for (const event of state.events) {
       if (event.imageUrl) {
         const filename = path.basename(event.imageUrl);
         const filepath = path.join("media", "EventImages", filename);
 
-        fs.unlink(filepath, (err) => {
-          if (err) {
-            console.error("Failed to delete image file:", filepath, err);
-          } else {
-            console.log("Deleted image file:", filepath);
-          }
-        });
+        if (fs.existsSync(filepath)) {
+          fs.unlinkSync(filepath);
+        }
       }
     }
 
-    eventState = [];
+    // Delete all DB records
+    state.events = [];
+    await state.save();
+
+    broadcast({ type: "event", events: [] });
 
     res.json({ message: "All events deleted successfully" });
-    broadcast({ type: "event", events: eventState });
     console.log("All events deleted successfully");
   } catch (err) {
     console.error(err);
@@ -130,39 +102,47 @@ export const deleteAllEvents = async (req, res) => {
   }
 };
 
-export const updateEvent = async (req, res) => {
+// DELETE /delete-event/:index
+export const deleteEvent = async (req, res) => {
+  const id = req.params.id;
+  console.log("delete event id is 0", id);
+
   try {
-    const { id } = req.params;
-    const updatedEventData = req.body;
-
-    console.log("Update event received data:", updatedEventData);
-    console.log("Edit event id:", id);
-    console.log("Uploaded file:", req.file);
-
-    const eventIndex = eventState.findIndex((ev) => ev._id === id);
-    if (eventIndex === -1) {
-      return res.status(404).json({ message: "Event not found" });
+    const state = await EventState.findOne();
+    if (!state || !Array.isArray(state.events)) {
+      return res.status(404).json({ message: "No events found" });
     }
 
-    // If there's a file uploaded
-    if (req.file) {
-      const imageUrl = `http://localhost:3000/EventImages/${req.file.filename}`;
-      updatedEventData.imageUrl = imageUrl;
+    // Find index by event.id (string)
+    const index = state.events.findIndex((ev) => ev.id === id);
+
+    if (index === -1) {
+      return res.status(400).json({ message: "Invalid event id" });
     }
 
-    // Merge the updated fields into existing event
-    eventState[eventIndex] = {
-      ...eventState[eventIndex],
-      ...updatedEventData,
-      _id: id,
-    };
+    // Delete image file if exists
+    const eventToDelete = state.events[index];
+    if (eventToDelete.imageUrl) {
+      const filename = path.basename(eventToDelete.imageUrl);
+      const filepath = path.join("media", "EventImages", filename);
+      if (fs.existsSync(filepath)) {
+        fs.unlinkSync(filepath);
+      }
+    }
 
-    res.json({ event: eventState[eventIndex] });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Failed to update event" });
+    // Remove event
+    state.events.splice(index, 1);
+
+    await state.save();
+
+    eventState.length = 0;
+    eventState.push(...state.events);
+
+    broadcast({ type: "event", events: state.events });
+
+    res.json({ message: "Event deleted successfully", events: state.events });
+  } catch (error) {
+    console.error("Failed to delete event:", error);
+    res.status(500).json({ message: "Failed to delete event" });
   }
-  const state = await EventState.findOne();
-
-  res.json({ event: state?.events || [] });
 };

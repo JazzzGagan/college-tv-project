@@ -17,9 +17,9 @@ const AdminPanel = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-100">
+    <div className="flex min-h-screen bg-gray-300">
       <Sidebar activeTab={activeTab} setActiveTab={handleTabChange} />
-      <main className="flex-1 p-8 bg-white shadow-xl m-6 rounded-lg overflow-auto">
+      <main className="flex-1 p-8 bg-white shadow-xl m-6 rounded-2xl overflow-auto">
         <div className="max-w-7xl mx-auto">
           {activeTab === "images" && <ImageManager />}
           {activeTab === "videos" && <VideoManager />}
