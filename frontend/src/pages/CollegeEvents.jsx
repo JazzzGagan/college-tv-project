@@ -187,7 +187,7 @@ const CollegeEvents = () => {
           {displayEvents.map((event, index) => (
             <div
               key={`${event?.id ?? index} - ${index}`}
-              className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 border border-gray-100 group flex-shrink-0"
+              className="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 border border-gray-100 group flex-shrink-0"
               style={{
                 width: "360px",
                 height: "480px",

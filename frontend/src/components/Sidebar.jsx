@@ -1,5 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import { FiChevronRight } from "react-icons/fi";
 
 const Sidebar = ({ activeTab, setActiveTab }) => {
   const navigate = useNavigate();
@@ -13,16 +14,28 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
   ];
 
   const handleLogout = () => {
-    localStorage.removeItem("adminToken"); // remove admin login data
-    navigate("/login"); // redirect to login page
+    localStorage.removeItem("adminToken");
+    navigate("/login");
   };
 
   return (
-    <aside className="w-64 bg-white border-r p-6 flex flex-col justify-between shadow-lg sticky top-0 h-screen">
+    <aside
+      className="
+        bg-white rounded-tr-2xl rounded-br-2xl shadow-lg
+        h-screen sticky top-0
+        flex flex-col justify-between
+        transition-all duration-300
+        w-20 sm:w-56 lg:w-64
+        p-2 sm:p-4 lg:p-6
+
+      "
+    >
       {/* Top part */}
       <div>
-        <div className="mb-8 pb-4 border-b border-gray-200">
-          <h1 className="text-2xl font-bold text-gray-800">Admin Panel</h1>
+        <div className="mb-6 pb-4 border-b border-gray-600">
+          <h1 className="text-xl lg:text-2xl font-bold text-gray-800 hidden sm:block text-center">
+            Admin Panel
+          </h1>
         </div>
 
         <nav className="space-y-2">
@@ -30,25 +43,19 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`font-semibold rounded-lg p-3.5 w-full text-left transition-all duration-200 ${
-                activeTab === tab.id
-                  ? "bg-blue-700 text-white shadow-md transform scale-[1.02]"
-                  : "hover:bg-blue-100 text-blue-700 hover:shadow-sm"
-              }`}
+              className={`cursor-pointer w-full text-left font-semibold rounded-2xl
+                px-3 py-3
+                transition-all duration-300 ease-in-out
+                ${
+                  activeTab === tab.id
+                    ? "bg-blue-700 text-white shadow-md scale-[1.02] "
+                    : "text-[#2743fd] hover:bg-blue-100 hover:shadow-md hover:translate-x-1"
+                }
+              `}
             >
-              <span className="flex items-center">
-                <span className="mr-2">
-                  {tab.id === "images"
-                    ? ""
-                    : tab.id === "videos"
-                    ? ""
-                    : tab.id === "description"
-                    ? ""
-                    : tab.id === "events&news"
-                    ? ""
-                    : ""}
-                </span>
-                {tab.label}
+              <span className="flex items-center justify-between">
+                <span className="hidden sm:block">{tab.label}</span>
+                <FiChevronRight />
               </span>
             </button>
           ))}
@@ -56,12 +63,20 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
       </div>
 
       {/* Logout Button */}
-      <div className="pt-4 border-t border-gray-200">
+      <div className="pt-7 border-t border-gray-200">
         <button
           onClick={handleLogout}
-          className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold p-3.5 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-[1.02]"
+          className="
+            cursor-pointer border border-[#2743fd]
+            w-full  text-[#2743fd] font-semibold
+            py-3 rounded-2xl
+            transition-all duration-300
+            hover:shadow-lg hover:scale-[1.02]
+            active:scale-95
+          "
         >
-          Logout
+          <span className="hidden sm:block">Logout</span>
+          <span className="sm:hidden">⎋</span>
         </button>
       </div>
     </aside>

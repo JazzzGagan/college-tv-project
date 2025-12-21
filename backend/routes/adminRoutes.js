@@ -25,7 +25,7 @@ router.post("/upload", uploadImageMiddleWare, uploadImage);
 router.post("/upload-video", uploadVideoMiddleware, addVideo);
 router.get("/notices", getAllNotices);
 router.post("/update-notices", updateNotices);
-router.post("/delete-notice/:id", deleteNotice);
+router.delete("/delete-notice/:id", deleteNotice);
 router.post("/update-description", updateDescription);
 router.get("/all-images", getAllImages);
 router.post("/delete-image", deleteImage);

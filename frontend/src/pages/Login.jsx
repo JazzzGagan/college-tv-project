@@ -48,7 +48,7 @@ export default function Login() {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-md">
+      <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-md">
         <h1 className="text-3xl font-bold text-center mb-6">Admin Login</h1>
 
         {error && (
@@ -66,7 +66,7 @@ export default function Login() {
             <input
               type="text"
               placeholder="admin"
-              className="block w-full px-3 py-2 mt-1 border rounded-lg shadow-sm border-gray-300"
+              className="block w-full px-3 py-2 mt-1 border rounded-2xl shadow-sm border-gray-300"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               required
@@ -81,7 +81,7 @@ export default function Login() {
             <input
               type="password"
               placeholder="••••••••"
-              className="block w-full px-3 py-2 mt-1 border rounded-lg shadow-sm border-gray-300"
+              className="block w-full px-3 py-2 mt-1 border rounded-2xl shadow-sm border-gray-300"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
@@ -91,7 +91,7 @@ export default function Login() {
           {/* Login button */}
           <button
             type="submit"
-            className="w-full py-2 px-4 rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 shadow"
+            className="w-full py-2 px-4 rounded-2xl text-white bg-indigo-600 hover:bg-indigo-700 shadow"
           >
             Login
           </button>

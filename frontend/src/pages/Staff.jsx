@@ -301,7 +301,7 @@ const Staff = () => {
                   Administration Voice
                 </h2>
               </div>
-              <div className="rounded-lg overflow-hidden shadow-md bg-white">
+              <div className="rounded-2xl overflow-hidden shadow-md bg-white">
                 <img
                   src={currentTestimonial.image}
                   alt={currentTestimonial.name}
@@ -312,7 +312,7 @@ const Staff = () => {
 
             {/* Testimonial Card */}
             <div className="w-full md:w-3/5 flex">
-              <div className="bg-white rounded-lg shadow-md p-8 relative w-full flex flex-col">
+              <div className="bg-white rounded-2xl shadow-md p-8 relative w-full flex flex-col">
                 {/* Quotation Mark Icon */}
                 <div className="absolute top-6 left-6 opacity-30">
                   <svg
@@ -359,7 +359,7 @@ const Staff = () => {
         <div className="absolute top-6 right-6">
           <button
             onClick={() => setTvMode(false)}
-            className="flex items-center justify-center w-12 h-12 rounded-lg text-white transition-all duration-300 hover:bg-white/20 hover:shadow-lg"
+            className="flex items-center justify-center w-12 h-12 rounded-2xl text-white transition-all duration-300 hover:bg-white/20 hover:shadow-lg"
           >
             <svg
               className="w-6 h-6"
@@ -496,7 +496,7 @@ const Staff = () => {
                 setCurrentTestimonialIndex(0);
               }
             }}
-            className="flex items-center gap-2 px-6 py-3 rounded-lg font-semibold text-white transition-all duration-300 hover:shadow-lg"
+            className="flex items-center gap-2 px-6 py-3 rounded-2xl font-semibold text-white transition-all duration-300 hover:shadow-lg"
             style={{ backgroundColor: tvMode ? "#DC2626" : "#023F88" }}
           >
             <svg
@@ -546,7 +546,7 @@ const Staff = () => {
                     }, 100);
                   }
                 }}
-                className="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 group cursor-pointer"
+                className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 group cursor-pointer"
                 style={{
                   animation: `fadeIn 0.6s ease-in ${index * 0.1}s both`,
                 }}
@@ -668,13 +668,13 @@ const Staff = () => {
                 <img
                   src={principleImage}
                   alt="Principal"
-                  className="w-full h-auto rounded-lg shadow-md"
+                  className="w-full h-auto rounded-2xl shadow-md"
                 />
               </div>
 
               {/* Right Side - Testimonial Card */}
               <div className="w-full md:w-2/3 flex">
-                <div className="bg-white rounded-lg shadow-lg p-8 relative w-full h-full flex flex-col">
+                <div className="bg-white rounded-2xl shadow-lg p-8 relative w-full h-full flex flex-col">
                   {/* Quotation Mark Icon */}
                   <div className="absolute top-6 left-6 opacity-30">
                     <svg
@@ -729,13 +729,13 @@ const Staff = () => {
                 <img
                   src={pranayaImage}
                   alt="Head of Science"
-                  className="w-full h-auto rounded-lg shadow-md"
+                  className="w-full h-auto rounded-2xl shadow-md"
                 />
               </div>
 
               {/* Left Side - Testimonial Card */}
               <div className="w-full md:w-2/3 flex">
-                <div className="bg-white rounded-lg shadow-lg p-8 relative w-full h-full flex flex-col">
+                <div className="bg-white rounded-2xl shadow-lg p-8 relative w-full h-full flex flex-col">
                   {/* Quotation Mark Icon */}
                   <div className="absolute top-6 left-6 opacity-30">
                     <svg
@@ -787,13 +787,13 @@ const Staff = () => {
                 <img
                   src={takluImage}
                   alt="Head of Humanities"
-                  className="w-full h-auto rounded-lg shadow-md"
+                  className="w-full h-auto rounded-2xl shadow-md"
                 />
               </div>
 
               {/* Right Side - Testimonial Card */}
               <div className="w-full md:w-2/3 flex">
-                <div className="bg-white rounded-lg shadow-lg p-8 relative w-full h-full flex flex-col">
+                <div className="bg-white rounded-2xl shadow-lg p-8 relative w-full h-full flex flex-col">
                   {/* Quotation Mark Icon */}
                   <div className="absolute top-6 left-6 opacity-30">
                     <svg
@@ -845,13 +845,13 @@ const Staff = () => {
                 <img
                   src={principleImage}
                   alt="Dean of Business"
-                  className="w-full h-auto rounded-lg shadow-md"
+                  className="w-full h-auto rounded-2xl shadow-md"
                 />
               </div>
 
               {/* Left Side - Testimonial Card */}
               <div className="w-full md:w-2/3 flex">
-                <div className="bg-white rounded-lg shadow-lg p-8 relative w-full h-full flex flex-col">
+                <div className="bg-white rounded-2xl shadow-lg p-8 relative w-full h-full flex flex-col">
                   {/* Quotation Mark Icon */}
                   <div className="absolute top-6 left-6 opacity-30">
                     <svg
@@ -903,13 +903,13 @@ const Staff = () => {
                 <img
                   src={pranayaImage}
                   alt="Head of IT Department"
-                  className="w-full h-auto rounded-lg shadow-md"
+                  className="w-full h-auto rounded-2xl shadow-md"
                 />
               </div>
 
               {/* Right Side - Testimonial Card */}
               <div className="w-full md:w-2/3 flex">
-                <div className="bg-white rounded-lg shadow-lg p-8 relative w-full h-full flex flex-col">
+                <div className="bg-white rounded-2xl shadow-lg p-8 relative w-full h-full flex flex-col">
                   {/* Quotation Mark Icon */}
                   <div className="absolute top-6 left-6 opacity-30">
                     <svg
@@ -960,13 +960,13 @@ const Staff = () => {
                 <img
                   src={takluImage}
                   alt="Director of Research"
-                  className="w-full h-auto rounded-lg shadow-md"
+                  className="w-full h-auto rounded-2xl shadow-md"
                 />
               </div>
 
               {/* Left Side - Testimonial Card */}
               <div className="w-full md:w-2/3 flex">
-                <div className="bg-white rounded-lg shadow-lg p-8 relative w-full h-full flex flex-col">
+                <div className="bg-white rounded-2xl shadow-lg p-8 relative w-full h-full flex flex-col">
                   {/* Quotation Mark Icon */}
                   <div className="absolute top-6 left-6 opacity-30">
                     <svg

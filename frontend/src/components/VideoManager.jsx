@@ -15,7 +15,7 @@ const VideoManager = () => {
     setTimeout(() => setMessage({ type: "", text: "" }), 3000);
   };
 
-  // LOAD CURRENT VIDEO
+  // Fetch current video
   useEffect(() => {
     const fetchVideo = async () => {
       try {
@@ -23,17 +23,17 @@ const VideoManager = () => {
         if (res.data?.videoUrl) {
           setPreviewUrl(res.data.videoUrl);
         } else {
-          showMessage("error", "No video available on server");
+          showMessage("error", "No video found");
         }
       } catch (err) {
         console.error("Failed to fetch video", err);
-        showMessage("error", "Failed to load video");
+        showMessage("error", "No videos found");
       }
     };
     fetchVideo();
   }, []);
 
-  // UPLOAD OR REPLACE VIDEO
+  // Upload or replace a video
   const handleUpload = async () => {
     if (!selectedVideo) {
       showMessage("error", "No video selected");
@@ -68,7 +68,7 @@ const VideoManager = () => {
     }
   };
 
-  // DELETE VIDEO
+  // delete video
   const handleDelete = async () => {
     try {
       await axios.delete("http://localhost:3000/api/video");
@@ -87,8 +87,8 @@ const VideoManager = () => {
     <section className="tab-content">
       {message.text && (
         <div
-          className={`mb-4 p-2 rounded-lg text-white text-center ${
-            message.type === "error" ? "bg-red-500" : "bg-green-600"
+          className={`mb-4 p-2 rounded-2xl text-white text-center ${
+            message.type === "error" ? "bg-blue-500" : "bg-green-600"
           }`}
         >
           {message.text}
@@ -97,10 +97,10 @@ const VideoManager = () => {
 
       <div className="flex justify-between items-center mb-6 pb-4 border-b border-gray-200">
         <div>
-          <h2 className="text-3xl font-bold text-red-600 mb-1">
+          <h2 className="text-3xl font-bold text-[#2743fd] mb-1">
             Video Management
           </h2>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-[#3a3a3a]">
             Upload and manage video content
           </p>
         </div>
@@ -122,7 +122,7 @@ const VideoManager = () => {
 
           <button
             onClick={handleUpload}
-            className="bg-blue-600 text-white px-6 py-2.5 rounded-lg hover:bg-blue-700 shadow-md hover:shadow-lg font-semibold transform hover:scale-105"
+            className=" bg-blue-600 text-white px-6 py-2.5 rounded-2xl font-semibold shadow-md hover:shadow-lg transition-all duration-300 ease-in-out transform hover:scale-105 hover:bg-blue-700 cursor-pointer "
           >
             Save Changes
           </button>
@@ -140,7 +140,7 @@ const VideoManager = () => {
 
         <label
           htmlFor="videoUpload"
-          className="inline-flex items-center gap-2 bg-gray-500 text-white px-5 py-2.5 rounded-lg cursor-pointer hover:bg-gray-600 shadow-md hover:shadow-lg font-medium"
+          className="inline-flex items-center gap-2 bg-gray-500 text-white px-5 py-2.5 rounded-2xl cursor-pointer hover:bg-gray-600 shadow-md hover:shadow-lg font-medium transition-all duration-300 ease-in-out transform hover:scale-105"
         >
           <FaFolderOpen size={18} className="text-yellow-400" />
           Choose Video
@@ -154,13 +154,13 @@ const VideoManager = () => {
               selectedVideo ? URL.createObjectURL(selectedVideo) : previewUrl
             }
             controls
-            className="w-full max-w-4xl h-auto border-2 border-gray-300 rounded-lg shadow-sm"
+            className="w-full max-w-4xl h-auto border-2 border-gray-300 rounded-2xl shadow-sm"
           />
 
           {selectedVideo && (
             <button
               onClick={() => setSelectedVideo(null)}
-              className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 shadow-sm font-medium self-start"
+              className="bg-red-600 text-white px-4 py-2 rounded-2xl hover:bg-red-700 shadow-sm font-medium self-start"
             >
               Remove Selected Video
             </button>
@@ -169,7 +169,7 @@ const VideoManager = () => {
           {previewUrl && !selectedVideo && (
             <button
               onClick={handleDelete}
-              className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 shadow-sm font-medium self-start"
+              className="bg-red-500 text-white px-4 py-2 rounded-xl hover:bg-red-600 shadow-sm font-medium self-start transition-all duration-300 ease-in-out transform hover:scale-105"
             >
               Delete Video
             </button>

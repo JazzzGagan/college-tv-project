@@ -4,7 +4,7 @@ import { FaTrash, FaPlus } from "react-icons/fa";
 
 const MAX_EVENTS = 10;
 
-const emptyEvent = {
+const createEmptyEvent = () => ({
   _id: null,
   title: "",
   description: "",
@@ -13,18 +13,20 @@ const emptyEvent = {
   time: "",
   location: "",
   image: null,
-};
+  isSaved: false,
+  isEditing: true,
+});
 
 const EventsNewsManager = () => {
   //console.log("EventsNeews manager component moundted");
 
-  const [events, setEvents] = useState([emptyEvent]);
+  const [events, setEvents] = useState([createEmptyEvent()]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
   const [message, setMessage] = useState({ type: "", text: "" });
 
-  console.log("test", events);
+  console.log("events are", events);
 
   const showMessage = (type, text) => {
     // console.log(`showMessage called with: ${type} - ${text}`);
@@ -43,24 +45,26 @@ const EventsNewsManager = () => {
           "http://localhost:3000/api/event/get-all-event"
         );
         const events = res.data.event;
-        console.log(events);
+        console.log("events are", events);
 
         if (Array.isArray(events) && events.length > 0) {
           setEvents(
             events.slice(0, MAX_EVENTS).map((ev) => ({
               ...ev,
               image: ev.imageUrl || null,
+              isSaved: true,
+              isEditing: false,
             }))
           );
           showMessage("success", "Events loaded successfully");
         } else {
-          setEvents([emptyEvent]);
+          setEvents([createEmptyEvent()]);
           console.log("No events found");
           showMessage("error", "No events found");
         }
       } catch (err) {
         console.error(err);
-        setEvents([emptyEvent]);
+        setEvents([createEmptyEvent()]);
         showMessage("error", "Failed to load events");
       } finally {
         setLoading(false);
@@ -70,17 +74,38 @@ const EventsNewsManager = () => {
     fetchEvents();
   }, []);
 
+  const allEventsSaved = events.length > 0 && events.every((ev) => ev.isSaved);
+
   /* HANDLERS */
+
+  //adding new event
   const handleAddEvent = () => {
     if (events.length >= MAX_EVENTS) {
       return showMessage("error", "Maximum 10 events allowed");
     }
-    setEvents([...events, { ...emptyEvent }]);
+    setEvents([...events, createEmptyEvent()]);
   };
 
-  const handleRemoveEvent = (index) => {
-    if (events.length === 1) return;
-    setEvents(events.filter((_, i) => i !== index));
+  //remove event from both backend and frontend
+  const handleRemoveEvent = async (index) => {
+    const eventId = events[index].id;
+
+    if (!eventId) {
+      setEvents(events.filter((_, i) => i !== index));
+      return;
+    }
+
+    try {
+      await axios.delete(
+        `http://localhost:3000/api/event/delete-event/${eventId}`
+      );
+
+      setEvents(events.filter((_, i) => i !== index));
+      showMessage("success", "Event deleted successfully");
+    } catch (error) {
+      console.error("Failed to delete event:", error);
+      showMessage("error", "Failed to delete event from server");
+    }
   };
 
   const handleInputChange = (index, field, value) => {
@@ -89,8 +114,55 @@ const EventsNewsManager = () => {
     setEvents(updated);
   };
 
+  //delete all events from both backend and frontend
+  const handleDeleteAll = async () => {
+    const backendEvents = events.filter((ev) => ev._id);
+    //const frontendOnlyEvents = events.filter((ev) => !ev._id);
+
+    try {
+      // Delete backend events
+      if (backendEvents) {
+        await axios.delete("http://localhost:3000/api/event/delete-all-events");
+      }
+
+      // Reset UI
+      setEvents([createEmptyEvent()]);
+      showMessage(
+        "success",
+        backendEvents.length
+          ? "All events deleted from backend and frontend"
+          : "All events deleted from frontend"
+      );
+    } catch (err) {
+      console.error(err);
+      showMessage("error", "Failed to delete all events");
+    }
+  };
+
   /* SAVE EVENTS */
-  const handleSave = async () => {
+
+  //locally saved events not push in backend
+  const handleSaveLocal = (index) => {
+    const updatedEvents = [...events];
+    updatedEvents[index].isSaved = true;
+    updatedEvents[index].isEditing = false;
+    setEvents(updatedEvents);
+    showMessage("success", `Event ${index + 1} saved`);
+  };
+
+  //edit button
+  const handleEditEvent = (index) => {
+    const updatedEvents = [...events];
+    updatedEvents[index].isEditing = true;
+    updatedEvents[index].isSaved = false;
+    setEvents(updatedEvents);
+  };
+
+  //upload event in backend
+  const handleUpload = async () => {
+    if (!allEventsSaved) {
+      return showMessage("error", "Please save all events before uploading");
+    }
     for (let ev of events) {
       if (
         !ev.title.trim() ||
@@ -150,21 +222,50 @@ const EventsNewsManager = () => {
     return (
       <div
         key={index}
-        className="bg-white p-5 rounded-xl shadow hover:shadow-lg transition"
+        className="bg-white p-2 rounded-xl shadow hover:shadow-lg transition"
       >
         {/* Header */}
-        <div className="flex justify-between items-center mb-3">
-          <h3 className="font-semibold text-lg text-gray-700">
-            Event {index + 1}
-          </h3>
-          {events.length > 1 && (
-            <button
-              onClick={() => handleRemoveEvent(index)}
-              className="bg-red-600 text-white px-3 py-1 rounded text-sm flex items-center gap-1"
-            >
-              <FaTrash /> Delete
-            </button>
-          )}
+        <div className="mb-1">
+          <div className="flex flex-col gap-2 md:flex-row md:justify-between md:items-center">
+            {/* Title */}
+            <h3 className="font-semibold text-lg text-gray-700">
+              Event {index + 1}
+            </h3>
+
+            {/* Buttons */}
+            <div className="flex flex-col gap-2 sm:flex-row md:flex-row md:gap-1">
+              {ev.isEditing ? (
+                //save button
+                <button
+                  onClick={() => handleSaveLocal(index)}
+                  className="w-full sm:w-28 bg-green-600 text-white px-3 py-2 rounded-xl text-sm
+               flex items-center justify-center gap-1 transition-all hover:scale-105"
+                >
+                  Save
+                </button>
+              ) : (
+                //edit button
+                <button
+                  onClick={() => handleEditEvent(index)}
+                  className="w-full sm:w-28 bg-yellow-500 text-white px-3 py-2 rounded-xl text-sm
+               flex items-center justify-center gap-1 transition-all hover:scale-105"
+                >
+                  Edit
+                </button>
+              )}
+
+              {events.length > 1 && (
+                //delete button
+                <button
+                  onClick={() => handleRemoveEvent(index)}
+                  className="w-full sm:w-28 bg-red-600 text-white px-3 py-2 rounded-xl text-sm
+                     flex items-center justify-center gap-1 transition-all hover:scale-105"
+                >
+                  <FaTrash /> Delete
+                </button>
+              )}
+            </div>
+          </div>
         </div>
 
         {/* Image */}
@@ -184,33 +285,36 @@ const EventsNewsManager = () => {
         </div>
 
         {/* Image buttons */}
-        <div className="flex gap-3 mt-3 flex-wrap">
-          <label className="flex-1 bg-blue-600 text-white py-2 rounded text-center cursor-pointer">
-            Upload Image
-            <input
-              type="file"
-              className="hidden"
-              accept="image/*"
-              onChange={(e) =>
-                handleInputChange(index, "image", e.target.files[0])
-              }
-            />
-          </label>
+        {ev.isEditing && (
+          <div className="flex gap-3 mt-3 flex-wrap">
+            <label className="flex-1 bg-[#2743fd] text-white py-2 rounded-xl text-center cursor-pointer transition-all hover:scale-[1.02]">
+              Upload Image
+              <input
+                type="file"
+                className="hidden"
+                accept="image/*"
+                onChange={(e) =>
+                  handleInputChange(index, "image", e.target.files[0])
+                }
+              />
+            </label>
 
-          {preview && (
-            <button
-              onClick={() => handleInputChange(index, "image", null)}
-              className="flex-1 bg-red-600 text-white py-2 rounded"
-            >
-              Remove
-            </button>
-          )}
-        </div>
+            {preview && (
+              <button
+                onClick={() => handleInputChange(index, "image", null)}
+                className="flex-1 bg-red-600 text-white py-2 rounded-xl transition-all hover:scale-[1.02]"
+              >
+                Remove
+              </button>
+            )}
+          </div>
+        )}
 
         {/* Inputs */}
         <input
           type="text"
           placeholder="Title"
+          disabled={!ev.isEditing}
           className="w-full mt-3 p-2 border rounded"
           value={ev.title}
           onChange={(e) => handleInputChange(index, "title", e.target.value)}
@@ -219,7 +323,8 @@ const EventsNewsManager = () => {
         <textarea
           rows={3}
           placeholder="Description"
-          className="w-full mt-2 p-2 border rounded"
+          disabled={!ev.isEditing}
+          className="w-full h-[10%] mt-2 p-1 border rounded"
           value={ev.description}
           onChange={(e) =>
             handleInputChange(index, "description", e.target.value)
@@ -228,6 +333,7 @@ const EventsNewsManager = () => {
 
         <select
           className="w-full mt-2 p-2 border rounded"
+          disabled={!ev.isEditing}
           value={ev.category}
           onChange={(e) => handleInputChange(index, "category", e.target.value)}
         >
@@ -238,16 +344,16 @@ const EventsNewsManager = () => {
           <option value="Sports">Sports</option>
         </select>
 
-        <div className="flex gap-3 mt-2 flex-col sm:flex-row">
+        <div className="flex gap-1 mt-2 flex-col sm:flex-row">
           <input
             type="date"
-            className="flex-1 p-2 border rounded"
+            className="flex-1 p-1 border rounded"
             value={ev.date}
             onChange={(e) => handleInputChange(index, "date", e.target.value)}
           />
           <input
             type="time"
-            className="flex-1 p-2 border rounded"
+            className="flex-1 p-1 border rounded"
             value={ev.time}
             onChange={(e) => handleInputChange(index, "time", e.target.value)}
           />
@@ -266,10 +372,10 @@ const EventsNewsManager = () => {
 
   return (
     <section className="p-5 max-w-[1200px] mx-auto">
-      {/* MESSAGE BAR */}
+      {/* Message bar  */}
       {message.text && (
         <div
-          className={`mb-4 p-3 rounded-lg text-white text-center font-semibold ${
+          className={`mb-4 p-3 rounded-2xl text-white text-center font-semibold ${
             message.type === "error" ? "bg-red-600" : "bg-green-600"
           }`}
           style={{ border: "2px solid yellow" }}
@@ -280,24 +386,39 @@ const EventsNewsManager = () => {
 
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between gap-4 mb-6 border-b pb-4">
-        <h2 className="text-3xl font-bold text-blue-700">Manage Events</h2>
+        <h2 className="text-3xl font-bold text-[#2743fd]">Manage Events</h2>
 
         <div className="flex gap-3 flex-wrap">
           {events.length < MAX_EVENTS && (
             <button
               onClick={handleAddEvent}
-              className="bg-green-600 text-white px-5 py-2 rounded flex items-center gap-2"
+              className="w-40 bg-green-600 text-white px-5 py-3 rounded-2xl flex items-center justify-center gap-2 transition-all hover:scale-105"
             >
               <FaPlus /> Add Event
             </button>
           )}
 
           <button
-            onClick={handleSave}
+            onClick={handleUpload}
             disabled={saving}
-            className="bg-blue-600 text-white px-6 py-2 rounded"
+            className={`w-40 px-6 py-3 rounded-2xl flex items-center justify-center transition-all
+    ${
+      saving
+        ? "bg-gray-400 cursor-not-allowed"
+        : allEventsSaved
+        ? "bg-[#2743fd] text-white hover:scale-105"
+        : "bg-[#2743fd]/70 text-white hover:scale-105"
+    }`}
           >
-            {saving ? "Saving..." : "Save All"}
+            {saving ? "Uploading..." : "Upload"}
+          </button>
+
+          {/* Delete all button   */}
+          <button
+            onClick={handleDeleteAll}
+            className="w-40 bg-red-600 text-white px-6 py-3 rounded-2xl flex items-center justify-center gap-2 transition-all hover:scale-105"
+          >
+            <FaTrash /> Delete All
           </button>
         </div>
       </div>
@@ -308,11 +429,11 @@ const EventsNewsManager = () => {
       </div>
 
       {/* Loading text */}
-      {loading && (
+      {/* {loading && (
         <p className="text-center text-gray-400 mt-4">
           Loading events from server...
         </p>
-      )}
+      )} */}
     </section>
   );
 };
